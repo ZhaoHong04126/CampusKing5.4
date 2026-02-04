@@ -2,7 +2,7 @@
 // 生命週期： 包含 Install (安裝)、Activate (激活)、Fetch (攔截) 三個主要事件。
 // 用途： 離線體驗、預先快取、動態快取。 
 
-const CACHE_NAME = 'v5.4';  // 快取版本
+const CACHE_NAME = 'v5.6';  // 快取版本
 
 const ASSETS_TO_CACHE = [ // 快取的檔案
     './',
