@@ -15,4 +15,5 @@ const db = firebase.firestore();
 
 
 
-const ADMIN_UID = "KEshDpx03GQvMNCoHDncJY7SzCF3";
+const ADMIN_UID = "puqNkSNmpUaqK5Sw1srPH5cd6Jp2";
+
