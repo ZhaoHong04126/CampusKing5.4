@@ -37,9 +37,10 @@ let categoryTargets = {
     "自由": 20,
     "其他": 0
 };
-let perioConfig = {
+let periodConfig = {
     classDur: 50, // 上課時間
     breakDur: 10, // 下課時間
     startHash: "08:10" // 開始時間
 };
+
 const defaultSchedule = { 1: [], 2: [], 3: [], 4: [], 5: [] };
