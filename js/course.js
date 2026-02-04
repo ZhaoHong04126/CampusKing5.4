@@ -42,7 +42,7 @@ function switchDay(day) {
                 if (nature === '必修') typeColor = "#e74c3c";
                 else if (nature === '選修') typeColor = "#27ae60";
                 else if (nature === '必選修') typeColor = "#f39c12";
-                
+
                 let badges = `<span style="font-size:0.7rem; color:white; background:${typeColor}; padding:2px 5px; border-radius:4px; margin-left:5px; vertical-align: middle;">${nature}</span>`;
                 if (category && category !== '其他') {
                     badges += `<span style="font-size:0.7rem; color:#888; margin-left:3px;">(${category})</span>`;
@@ -92,7 +92,7 @@ function editCourse(index) {
     // 回填資料到輸入框
     document.getElementById('input-period-start').value = item.period || '';
     document.getElementById('input-period-end').value = item.period || ''; // 預設結束=起始
-    document.getElementById('input-time').value = item.time|| getPeriodTimes()[item.period] || '';  
+    document.getElementById('input-time').value = item.time || getPeriodTimes()[item.period] || '';
     document.getElementById('input-subject').value = item.subject || '';
     document.getElementById('input-course-category').value = item.category || '通識';
     document.getElementById('input-course-nature').value = item.nature || item.type || '必修';
@@ -112,7 +112,7 @@ const PERIOD_ORDER = ['0', '1', '2', '3', '4', 'N', '6', '7', '8', '9', 'A', 'B'
 function getPeriodTimes() {
     const times = {};
     const { classDur, breakDur, startHash } = periodConfig;
-    
+
     let [h, m] = startHash.split(':').map(Number);
     let currentMin = h * 60 + m; // 轉成總分鐘數
 
@@ -121,21 +121,21 @@ function getPeriodTimes() {
     times['0'] = formatTime(zeroStart);
 
     // 第 1 節開始往後算
-    PERIOD_KEYS.forEach(p => {
+    PERIOD_ORDER.forEach(p => {
         if (p === '0') return; // 跳過 0，因為上面算過了
 
         // 特別處理：中午午休 (N) 或是 第5節
         // 這裡假設第 4 節下課後，到第 5 節中間有一段較長的午休
         // 若是 'N'，我們通常固定設為 12:10 或接在第4節後
-        
+
         times[p] = formatTime(currentMin);
-        
+
         // 往後推算下一節的時間
         let duration = classDur;
         let breakTime = breakDur;
 
         // 特殊規則：如果是第 4 節下課 (中午)，通常休息久一點 (例如 60分)
-        if (p === '4') breakTime = 60; 
+        if (p === '4') breakTime = 60;
         // 特殊規則：午休 N 只有 30 分鐘? (可依需求調整，這裡暫設跟上課一樣)
         if (p === 'N') { duration = 30; breakTime = 20; }
 
@@ -155,32 +155,32 @@ function formatTime(totalMinutes) {
 function editTimeSettings() {
     // 防誤觸確認
     showConfirm("⚠️ 修改後，新增課程時的預設時間將會改變。\n\n確定要編輯課堂時間設定嗎？", "編輯確認")
-    .then(isConfirmed => {
-        if (!isConfirmed) return;
+        .then(isConfirmed => {
+            if (!isConfirmed) return;
 
-        // 輸入上課時間
-        showPrompt("請輸入「每堂課」的分鐘數：", periodConfig.classDur, "上課時間")
-        .then(cVal => {
-            if (cVal === null) return;
-            const newClass = parseInt(cVal) || 50;
+            // 輸入上課時間
+            showPrompt("請輸入「每堂課」的分鐘數：", periodConfig.classDur, "上課時間")
+                .then(cVal => {
+                    if (cVal === null) return;
+                    const newClass = parseInt(cVal) || 50;
 
-            // 輸入下課時間
-            showPrompt("請輸入「下課休息」的分鐘數：", periodConfig.breakDur, "下課時間")
-            .then(bVal => {
-                if (bVal === null) return;
-                const newBreak = parseInt(bVal) || 10;
+                    // 輸入下課時間
+                    showPrompt("請輸入「下課休息」的分鐘數：", periodConfig.breakDur, "下課時間")
+                        .then(bVal => {
+                            if (bVal === null) return;
+                            const newBreak = parseInt(bVal) || 10;
 
-                // 儲存並更新
-                periodConfig.classDur = newClass;
-                periodConfig.breakDur = newBreak;
-                saveData();
-                
-                // 為了讓使用者有感，我們可以計算一下第1節跟第8節的時間給他看
-                const preview = getPeriodTimes();
-                showAlert(`設定已更新！\n\n第 1 節：${preview['1']}\n第 8 節：${preview['8']}`, "修改成功");
-            });
+                            // 儲存並更新
+                            periodConfig.classDur = newClass;
+                            periodConfig.breakDur = newBreak;
+                            saveData();
+
+                            // 為了讓使用者有感，我們可以計算一下第1節跟第8節的時間給他看
+                            const preview = getPeriodTimes();
+                            showAlert(`設定已更新！\n\n第 1 節：${preview['1']}\n第 8 節：${preview['8']}`, "修改成功");
+                        });
+                });
         });
-    });
 }
 
 function addCourse() {
@@ -220,7 +220,7 @@ function addCourse() {
         const finalTime = time || getPeriodTimes()[currentP] || "";
         weeklySchedule[currentDay][editingCourseIndex] = {
             period: currentP,
-            time: finalTime, 
+            time: finalTime,
             subject: sub, category, nature, room, teacher
         };
 
@@ -234,20 +234,20 @@ function addCourse() {
             });
         }
         showAlert("修改成功！(若有延長節次已自動配對時間)", "成功");
-    } 
+    }
     // 迴圈建立多筆資料
     else {
         let count = 0;
         for (let i = idxStart; i <= idxEnd; i++) {
             const p = PERIOD_ORDER[i];
-            
+
             // 這裡改用 defaultPeriodTimes 抓取標準時間
             // 如果對照表裡沒有這個節次，才使用使用者輸入的 time 作為備案
             const autoTime = getPeriodTimes()[p] || time;
 
             weeklySchedule[currentDay].push({
                 period: p,
-                time: autoTime, 
+                time: autoTime,
                 subject: sub, category, nature, room, teacher
             });
             count++;
@@ -256,7 +256,7 @@ function addCourse() {
     }
 
     resetCourseInput();
-    saveData(); 
+    saveData();
     renderEditList();
     updateExamSubjectOptions();
     if (typeof renderWeeklyTable === 'function') renderWeeklyTable(); // 即時更新週課表
@@ -271,7 +271,7 @@ function resetCourseInput() {
     document.getElementById('input-course-nature').value = '必修';
     document.getElementById('input-room').value = '';
     document.getElementById('input-teacher').value = '';
-    
+
     editingCourseIndex = -1;
     const btn = document.getElementById('btn-add-course');
     if (btn) {
@@ -285,7 +285,7 @@ function deleteCourse(index) {
     showConfirm('確定刪除這堂課嗎？', '刪除確認').then(isConfirmed => {
         if (isConfirmed) {
             if (editingCourseIndex === index) resetCourseInput();
-            
+
             weeklySchedule[currentDay].splice(index, 1);
             saveData();
             renderEditList();
@@ -296,13 +296,13 @@ function deleteCourse(index) {
 
 function openEditModal() {
     document.getElementById('course-modal').style.display = 'flex';
-    resetCourseInput(); 
+    resetCourseInput();
     renderEditList();
 }
 
 function closeEditModal() {
     document.getElementById('course-modal').style.display = 'none';
-    resetCourseInput(); 
+    resetCourseInput();
 }
 
 // 渲染週課表網格 與 連堂合併 rowspan
@@ -312,7 +312,7 @@ function renderWeeklyTable() {
 
     // 定義要顯示的節次清單
     const periods = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D'];
-    
+
     // 定義星期的順序 (配合 state.js 的 key: 1-6, 0代表週日)
     const dayKeys = [1, 2, 3, 4, 5, 6, 0];
 
@@ -324,7 +324,7 @@ function renderWeeklyTable() {
 
     periods.forEach((p, pIndex) => {
         html += `<tr>`;
-        
+
         // --- 左側：節次欄 ---
         html += `<td style="font-weight:bold; background:#f4f7f6; color:#555; text-align:center; vertical-align: middle;">${p}</td>`;
 
@@ -334,14 +334,14 @@ function renderWeeklyTable() {
             if (skipMap.has(`${day}-${p}`)) return;
 
             const dayCourses = weeklySchedule[day] || [];
-            
+
             // 尋找當前節次的課程
             const course = dayCourses.find(c => c.period == p);
 
             if (course) {
                 // --- 2. 發現有課，開始「往後檢查」是否有連堂 ---
                 let spanCount = 1;
-                
+
                 // 從下一個節次開始檢查
                 for (let nextI = pIndex + 1; nextI < periods.length; nextI++) {
                     const nextP = periods[nextI];
@@ -349,10 +349,10 @@ function renderWeeklyTable() {
 
                     // 判斷條件：必須有課，且「科目名稱」與「地點」完全相同
                     // (如果您希望只看科目相同就合併，可以把 && 后面的 room 判斷拿掉)
-                    if (nextCourse && 
-                        nextCourse.subject === course.subject && 
+                    if (nextCourse &&
+                        nextCourse.subject === course.subject &&
                         nextCourse.room === course.room) {
-                        
+
                         spanCount++; // 合併數 +1
                         skipMap.add(`${day}-${nextP}`); // 標記下一節課為「已處理/跳過」
                     } else {
@@ -382,4 +382,5 @@ function renderWeeklyTable() {
     });
 
     tbody.innerHTML = html;
+
 }
