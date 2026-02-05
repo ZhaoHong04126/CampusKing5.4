@@ -1,10 +1,12 @@
-// Service Worker 只能在https和localhost下執行
+// Service Worker 只能在 https 和 localhost 下執行
 // 生命週期： 包含 Install (安裝)、Activate (激活)、Fetch (攔截) 三個主要事件。
-// 用途： 離線體驗、預先快取、動態快取。 
+// 用途： 離線體驗、預先快取、動態快取、推播通知等。 
 
-const CACHE_NAME = 'v5.6';  // 快取版本
+// 定義快取版本名稱，更新版本號可強迫瀏覽器更新快取
+const CACHE_NAME = 'v5.7'; 
 
-const ASSETS_TO_CACHE = [ // 快取的檔案
+// 定義需要被預先快取的靜態檔案列表
+const ASSETS_TO_CACHE = [
     './',
     './index.html',
     './manifest.json',
@@ -29,18 +31,22 @@ const ASSETS_TO_CACHE = [ // 快取的檔案
     './js/learning.js'
 ];
 
-self.addEventListener('install', (e) => { // 安裝
+// 監聽 'install' 事件：當 Service Worker 第一次安裝時觸發
+self.addEventListener('install', (e) => {
     e.waitUntil(
+        // 開啟指定名稱的快取空間
         caches.open(CACHE_NAME).then((cache) => {
-            return cache.addAll(ASSETS_TO_CACHE);
+            return cache.addAll(ASSETS_TO_CACHE);// 將所有檔案加入快取
         })
     );
 });
 
-self.addEventListener('fetch', (e) => { // 攔截
+// 監聽 'fetch' 事件：當網頁發出網路請求時觸發 (攔截請求)
+self.addEventListener('fetch', (e) => {
     e.respondWith(
+        // 檢查快取中是否有對應的資源
         caches.match(e.request).then((response) => {
-            return response || fetch(e.request);
+            return response || fetch(e.request);// 如果有快取就直接回傳 (離線可用)，否則發出真實網路請求
         })
     );
 });
