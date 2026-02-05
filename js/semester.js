@@ -1,7 +1,10 @@
+// 渲染學期下拉選單
 function renderSemesterOptions() {
     const select = document.getElementById('semester-select');
     if (!select) return; //防止找不到元素
     select.innerHTML = '';
+    
+    // 排序學期 (例如 114-1, 113-2...)
     semesterList.sort().reverse();
     semesterList.forEach(sem => {
         const option = document.createElement('option');
@@ -12,16 +15,19 @@ function renderSemesterOptions() {
     });
 }
 
+// 切換學期 (綁定在下拉選單 onChange)
 function switchSemester() {
-    // 在儲存(重繪)之前，先抓取使用者想切換的新學期
-    const select = document.getElementById('semster-select');
+    // 抓取使用者選擇的新學期
+    const select = document.getElementById('semester-select'); // 修正：原檔名可能有拼字錯誤 semster
     const newSemester = select.value;
-    saveData(); // 儲存舊學期資料
-    currentSemester = newSemester; //更新
+    
+    saveData(); // 儲存舊學期資料 (備份當前狀態)
+    currentSemester = newSemester; // 更新全域學期變數
     loadSemesterData(currentSemester); // 載入新學期資料
     refreshUI(); // 強制刷新畫面
 }
 
+// 新增學期
 function addNewSemester() {
     showPrompt("請輸入新學期名稱 (例如: 114-1)", "114-2", "新增學期")
     .then(newSemName => {
@@ -30,31 +36,33 @@ function addNewSemester() {
 
             if (semesterList.includes(newSemName)) {
                 showAlert("這個學期已經存在囉！", "重複");
-                currentSemester = newSemName;
+                currentSemester = newSemName; // 若已存在則切換過去
             } else {
                 semesterList.push(newSemName);
                 currentSemester = newSemName;
+                // 初始化新學期的空資料結構
                 allData[newSemName] = { 
-                    schedule: JSON.parse(JSON.stringify(defaultSchedule)), 
-                    grades: [],
-                    regularExams: {},
-                    midtermExams: {},
-                    calendarEvents: [],
-                    accounting: [],
-                    notes: [],
-                    anniversaries: [],
-                    learning: []
+                    schedule: JSON.parse(JSON.stringify(defaultSchedule)),
+                    grades: [],// 空的成績陣列
+                    regularExams: {},// 空的平常考物件
+                    midtermExams: {},// 空的段考物件
+                    calendarEvents: [],// 空的行事曆陣列
+                    accounting: [],// 空的記帳陣列
+                    notes: [],// 空的筆記陣列
+                    anniversaries: [],//空的紀念日陣列
+                    learning: [],//空的學習進度陣列
                 };
-                }
+            }
 
             loadSemesterData(currentSemester);
             saveData(); // 存檔新學期
             renderSemesterOptions(); // 刷新全介面
-            howAlert(`已切換至 ${newSemName}`, "成功");
+            showAlert(`已切換至 ${newSemName}`, "成功");
         }
     });
 }
 
+// 修改學期名稱
 function editSemester() {
     showPrompt("請輸入新的學期名稱", currentSemester, "修改名稱")
     .then(newName => {
@@ -62,21 +70,24 @@ function editSemester() {
             if (semesterList.includes(newName)) {
                 showAlert("名稱重複！", "錯誤");
                 return;
-            } // 搬移資料
+            } 
+            // 搬移資料
             allData[newName] = allData[currentSemester];
             delete allData[currentSemester];
+            
             // 更新列表
             const index = semesterList.indexOf(currentSemester);
             semesterList[index] = newName;
             currentSemester = newName;
 
-            saveData();
-            renderSemesterOptions();
+            saveData();//存檔
+            renderSemesterOptions();// 刷新全介面
             showAlert("修改成功！", "完成");
         }
     });
 }
 
+// 刪除學期
 function deleteSemester() {
     if (semesterList.length <= 1) {
         showAlert("至少要保留一個學期，無法刪除！", "無法執行");
@@ -88,21 +99,18 @@ function deleteSemester() {
         if (isConfirmed) {
             delete allData[currentSemester];
             semesterList = semesterList.filter(s => s !== currentSemester);
+            // 刪除後自動切換到列表中的第一個
             currentSemester = semesterList[0];
 
-            saveData();
-            // renderSemesterOptions();
+            saveData();//存檔
             loadSemesterData(currentSemester);
-            refreshUI();
-            showAlert("已刪除並切換至上一個學期", "完成")
-            // switchDay(currentDay);
-            // loadGrades();
+            refreshUI();//刷新 UI
+            showAlert("已刪除並切換至上一個學期", "完成");
         }
     });
 }
 
-
-// 儲存日期設定
+// 儲存學期日期設定 (開學/結束日)
 function saveSemesterDates() {
     // 取得輸入值
     const startVal = document.getElementById('setting-sem-start').value;
@@ -118,21 +126,15 @@ function saveSemesterDates() {
     semesterStartDate = startVal;
     semesterEndDate = endVal;
 
-    // 存檔與更新介面
-    saveData();
-    refreshUI(); // 確保都更新
-    // updateSemesterStatus(); 
-    
-    // 如果月曆已經載入，刷新它
-    // if (typeof renderMonthGrid === 'function') renderMonthGrid();
+    saveData();// 存檔
+    refreshUI(); //更新介面
 
     showAlert("學期日期已更新！", "儲存成功");
     
-    // 切換回檢視模式
-    toggleSemesterEdit();
+    toggleSemesterEdit();// 關閉編輯模式
 }
 
-// 更新介面顯示
+// 更新學期設定介面顯示
 function renderSemesterSettings() {
     const startInput = document.getElementById('setting-sem-start');
     const endInput = document.getElementById('setting-sem-end');
@@ -144,10 +146,10 @@ function renderSemesterSettings() {
     if (startText) startText.innerText = semesterStartDate || "未設定";
     if (endText) endText.innerText = semesterEndDate || "未設定";
     
-    updateSemesterStatus();
+    updateSemesterStatus(); // 更新週次顯示
 }
 
-// 計算並顯示目前週次
+// 計算並顯示目前週次 (在首頁與設定頁)
 function updateSemesterStatus() {
     const statusDiv = document.getElementById('semester-status-text');
     if (!statusDiv) return;
@@ -162,16 +164,16 @@ function updateSemesterStatus() {
     const now = new Date();
     const end = semesterEndDate ? new Date(semesterEndDate) : null;
 
-    // 計算週次差異
+    // 計算天數差異
     const diffTime = now - start;
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
-    // 假設一週 7 天，且開始日當天算第 1 週的第 1 天
     // 如果還沒開始
     if (diffDays < 0) {
         statusDiv.innerText = `距離開學還有 ${Math.abs(diffDays)} 天`;
         statusDiv.style.color = "#f39c12";
     } else {
+        // 計算週次 (假設開學日為第1週)
         const weekNum = Math.ceil(diffDays / 7);
         
         // 如果已經結束
@@ -184,7 +186,9 @@ function updateSemesterStatus() {
         }
     }
 }
+
 let isEditingSemester = false;
+// 切換學期日期的檢視/編輯模式
 function toggleSemesterEdit() {
     isEditingSemester = !isEditingSemester;
     const viewDiv = document.getElementById('semester-date-view-mode');

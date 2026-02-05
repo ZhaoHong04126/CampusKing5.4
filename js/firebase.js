@@ -8,12 +8,9 @@ const firebaseConfig = {
   measurementId: "G-LMQRW33ML0"
 };
 
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const provider = new firebase.auth.GoogleAuthProvider();
-const db = firebase.firestore();
-
-
+firebase.initializeApp(firebaseConfig);// 初始化 Firebase 應用程式
+const auth = firebase.auth();// 取得 Auth 實例
+const provider = new firebase.auth.GoogleAuthProvider();// 建立 Google 登入提供者
+const db = firebase.firestore();// 取得 Firestore 資料庫實例
 
 const ADMIN_UID = "puqNkSNmpUaqK5Sw1srPH5cd6Jp2";
-

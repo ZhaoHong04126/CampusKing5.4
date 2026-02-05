@@ -1,24 +1,34 @@
+// 目前登入的 Firebase 使用者物件
 let currentUser = null;
+// 使用者身分 (highschool / university)，從 localStorage 讀取
 let userType = localStorage.getItem('userType');
+// 是否為註冊模式 (控制登入頁面狀態)
 let isRegisterMode = false
+// 目前選擇的星期 (預設為今天，若週日0則轉為1)
 let currentDay = new Date().getDay();
 if (currentDay === 0 || currentDay === 6) currentDay = 1;
-let currentSemester = "114-2";
-let semesterList = ["114-2"];
-let allData = {};
-let weeklySchedule = {};
-let gradeList = [];
-let regularExams = {};
-let midtermExams = {};
-let calendarEvents = [];
-let accountingList = [];
-let accChartInstance = null;
-let quickNotes = [];
-let anniversaryList = [];
-let semesterStartDate = "";
-let semesterEndDate = "";
-let learningList = [];
-let graduationTarget = 128; 
+
+let currentSemester = "114-2";// 目前選擇的學期
+
+let semesterList = ["114-2"];// 學期列表
+
+
+let allData = {};// 儲存所有學期的完整資料結構
+let weeklySchedule = {};// 當前學期的週課表資料
+let gradeList = [];// 當前學期的成績資料
+let regularExams = {};// 當前學期的平常考資料
+let midtermExams = {};// 當前學期的段考資料
+let calendarEvents = [];// 當前學期的行事曆資料
+let accountingList = [];// 當前學期的記帳資料
+let accChartInstance = null;// 記帳圖表實例 (Chart.js)
+let quickNotes = [];// 筆記資料
+let anniversaryList = [];// 紀念日資料
+let semesterStartDate = "";// 學期開始日
+let semesterEndDate = "";// 學期結束日
+let learningList = [];// 學習計畫資料
+let graduationTarget = 128; // 畢業學分目標 (預設 128)
+
+// 各類別學分目標預設值 (大學模式)
 let categoryTargets = {
     "通識": 28,
     "院共同": 9,
@@ -37,10 +47,13 @@ let categoryTargets = {
     "自由": 20,
     "其他": 0
 };
+
+// 課堂時間設定預設值
 let periodConfig = {
-    classDur: 50, // 上課時間
-    breakDur: 10, // 下課時間
-    startHash: "08:10" // 開始時間
+    classDur: 50, // 上課時間 (分)
+    breakDur: 10, // 下課時間 (分)
+    startHash: "08:10" // 第一節開始時間
 };
 
+// 預設的課表結構 (週一到週五)
 const defaultSchedule = { 1: [], 2: [], 3: [], 4: [], 5: [] };
