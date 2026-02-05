@@ -137,7 +137,7 @@ function switchTab(tabName, addToHistory = true) {
         'credits', 'regular', 'midterm', 
         'grades', 'exams-hub', 'grade-manager', 
         'accounting', 'notes', 'anniversary', 
-        'learning',
+        'learning', 
     ];
     
     // 迴圈：隱藏所有 View，並移除導航列按鈕的 active 樣式
@@ -176,10 +176,11 @@ function switchTab(tabName, addToHistory = true) {
             case 'calendar': pageTitle = "學期行事曆"; break;
             case 'grade-manager': pageTitle = "成績管理"; break;
             case 'accounting': pageTitle = "學期記帳"; break;
-            case 'settings': pageTitle = "個人設定"; break;
-            case 'info': pageTitle = "系統資訊"; break;
             case 'notes': pageTitle = "記事本"; break;
             case 'anniversary': pageTitle = "紀念日"; break;
+            case 'info': pageTitle = "系統資訊"; break;
+            case 'discussion': pageTitle = "校園討論區"; break;
+            case 'settings': pageTitle = "個人設定"; break;
         }
         const titleEl = document.getElementById('app-title');
         if (titleEl) titleEl.innerText = pageTitle;
@@ -209,19 +210,23 @@ function switchTab(tabName, addToHistory = true) {
     }
     // 如果切換到資訊頁，載入公告
     if (tabName === 'info') loadAnnouncements();
-    
     // 如果切換到成績管理，預設顯示總覽分頁
     if (tabName === 'grade-manager' && typeof switchGradeTab === 'function') switchGradeTab('dashboard');
-    
     // 如果切換到記帳頁，預設顯示摘要分頁
     if (tabName === 'accounting') {
         if (typeof switchAccTab === 'function') switchAccTab('summary');
         else if (typeof renderAccounting === 'function') renderAccounting();
     }
-    
     // 如果切換到學習進度頁，渲染列表
     if (tabName === 'learning') {
         if (typeof renderLearning === 'function') renderLearning();
+    }
+    // 如果切換到討論區，就初始化監聽
+    if (tabName === 'discussion') {
+        if (typeof initDiscussion === 'function') initDiscussion();
+    } else {
+        // 如果離開討論區，就停止監聽 (節省流量)
+        if (typeof stopDiscussionListener === 'function') stopDiscussionListener();
     }
 }
 
