@@ -1,12 +1,11 @@
-# 📅 CampusMate - 校園王 (v5.0)
+# 📅 CampusMate - 校園王 (v5.4)
 
 **校園王 (CampusMate)** 是一個專為學生設計的個人化校園生活管理助手 (PWA)。
-v5.0 版本帶來了全新的 **App Launcher (類手機桌面)** 介面，將原本複雜的功能拆分為獨立的應用程式，並強化了行事曆與學期進度追蹤功能。
+v5.4 版本加入了學習進度App，更新Meta標籤，提升 iOS 支援度。
 
 [![GitHub Repo stars](https://img.shields.io/github/stars/yourusername/campusmate?style=social)]()
 ![Version](https://img.shields.io/badge/version-5.0-blue.svg) ![Firebase](https://img.shields.io/badge/database-Firebase-orange.svg) ![PWA](https://img.shields.io/badge/PWA-Supported-green.svg)
 
-## ✨ v5.0 重大更新 (Major Updates)
 
 ### 📱 全新桌面體驗 (App Launcher UI)
 * **桌面化設計**：捨棄傳統的側邊欄切換，改為直觀的 Grid 圖示排列，更符合手機操作直覺。
@@ -48,6 +47,10 @@ v5.0 版本帶來了全新的 **App Launcher (類手機桌面)** 介面，將原
 * **週次計算**：在「設定 App」中可設定學期 **起始日** 與 **結束日**。
 * **即時狀態**：系統會自動計算並在設定頁與月曆標題顯示「目前是第幾週」或「距離開學還有幾天」。
 
+### 📚 學習進度 (New!)
+* **讀書計畫**：設定科目與目標頁數/章節 (如：微積分 500頁)。
+* **進度可視化**：即時更新目前進度，系統自動計算百分比與進度條顏色 (綠色完成、紅色落後)。
+
 ### ☁️ 雲端同步
 * **Firebase 整合**：資料自動加密備份，跨裝置無縫接軌。
 * **多學期檔案**：支援建立無限多個學期 (如 113-2, 114-1)，資料獨立儲存。
@@ -61,8 +64,11 @@ v5.0 版本帶來了全新的 **App Launcher (類手機桌面)** 介面，將原
 * **Tools**: Chart.js (圖表), html2canvas (截圖)
 
 ## 🚀 版本紀錄 (Changelog)
+* **v5.0**
+    * 全新 App Launcher 架構，導入類手機桌面介面。
+    * 拆分功能為獨立 App。
 
-* **v4.5 (Current)**
+* **v4.5**
     * 新增「快述記事」功能。
     * 新增「紀念日/倒數日」功能。
     * 實作課程前 10 分鐘自動通知系統。
