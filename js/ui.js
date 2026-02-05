@@ -137,7 +137,7 @@ function switchTab(tabName, addToHistory = true) {
         'credits', 'regular', 'midterm', 
         'grades', 'exams-hub', 'grade-manager', 
         'accounting', 'notes', 'anniversary', 
-        'learning', 
+        'learning', 'discussion'
     ];
     
     // 迴圈：隱藏所有 View，並移除導航列按鈕的 active 樣式
@@ -473,16 +473,11 @@ function toggleCreditEdit() {
 // 切換主題 (Light <-> Dark)
 function toggleTheme() {
     const root = document.documentElement;
-    // 取得目前主題屬性
-    const currentTheme = root.getAttribute('data-theme');
-    // 切換
-    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-    // 設定 HTML 屬性 (讓 CSS 變數生效)
-    root.setAttribute('data-theme', newTheme);
-    // 儲存到 LocalStorage
-    localStorage.setItem('theme', newTheme);
-    // 更新 UI 文字
-    updateThemeUI(newTheme);
+    const currentTheme = root.getAttribute('data-theme');// 取得目前主題屬性
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';// 切換
+    root.setAttribute('data-theme', newTheme);// 設定 HTML 屬性 (讓 CSS 變數生效)
+    localStorage.setItem('theme', newTheme);// 儲存到 LocalStorage
+    updateThemeUI(newTheme);// 更新 UI 文字
 }
 
 // 載入已儲存的主題 (初始化時呼叫)
@@ -583,8 +578,6 @@ function deleteAnnouncement(docId) {
     });
 
 }
-
-// --- 儲存設定功能 ---
 
 // 儲存學分設定 (按下儲存按鈕時觸發)
 function saveCreditSettings() {
