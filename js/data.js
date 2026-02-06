@@ -35,6 +35,8 @@ function loadData() {
 function parseAndApplyData(parsed) {
     allData = parsed.allData || {}; // 讀取所有學期資料
     semesterList = parsed.semesterList || ["114-2"]; // 讀取學期列表
+    // 讀取使用者名稱，如果沒有設定過，就嘗試抓取 Google 帳號名稱，否則顯示"同學"
+    userTitle = parsed.userTitle || (currentUser && currentUser.displayName ? currentUser.displayName : "同學");
     currentSemester = parsed.currentSemester || semesterList[0]; // 設定當前學期
     graduationTarget = parsed.graduationTarget || 128; // 畢業學分目標
     // 讀取儲存的支付方式
@@ -104,30 +106,31 @@ function saveData() {
     if (!currentUser) return;
     // 將目前操作中的變數 (如 weeklySchedule) 寫回 allData 結構中
     allData[currentSemester] = { 
-    schedule: weeklySchedule,// 目前的週課表資料
-    grades: gradeList,// 目前的學期成績單資料
-    regularExams: regularExams,// 目前的平常考成績
-    midtermExams: midtermExams,// 目前的段考成績
-    calendarEvents: calendarEvents,// 目前的行事曆活動
-    accounting: accountingList,// 目前的收支記帳紀錄
-    notes: quickNotes,// 目前的快述記事
-    anniversaries: anniversaryList,// 目前的紀念日列表
-    startDate: semesterStartDate,// 學期開始日期
-    endDate: semesterEndDate,// 學期結束日期
-    learning: learningList,// 學習進度計畫
+        schedule: weeklySchedule,// 目前的週課表資料
+        grades: gradeList,// 目前的學期成績單資料
+        regularExams: regularExams,// 目前的平常考成績
+        midtermExams: midtermExams,// 目前的段考成績
+        calendarEvents: calendarEvents,// 目前的行事曆活動
+        accounting: accountingList,// 目前的收支記帳紀錄
+        notes: quickNotes,// 目前的快述記事
+        anniversaries: anniversaryList,// 目前的紀念日列表
+        startDate: semesterStartDate,// 學期開始日期
+        endDate: semesterEndDate,// 學期結束日期
+        learning: learningList,// 學習進度計畫
     };
 
     // 準備要儲存的完整物件
     const storageObj = {
-    allData: allData,// 包含所有學期 (如 113-1, 114-2) 的完整資料結構
-    semesterList: semesterList,// 學期名稱列表 (用於選單)
-    currentSemester: currentSemester,// 紀錄使用者目前停留在哪個學期
-    graduationTarget: graduationTarget,// 畢業總學分目標 (全域設定)
-    categoryTargets: categoryTargets,// 各領域/必選修學分目標 (全域設定)
-    periodConfig: periodConfig,// 課堂時間設定 (上課時長、起始時間)
-    paymentMethods: paymentMethods,// 將支付方式列表加入存檔物件中
-    // 加入伺服器時間戳記 (這只對 Firestore 有效，存入 LocalStorage 前會被移除)
-    lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+        allData: allData,// 包含所有學期 (如 113-1, 114-2) 的完整資料結構
+        semesterList: semesterList,// 學期名稱列表 (用於選單)
+        currentSemester: currentSemester,// 紀錄使用者目前停留在哪個學期
+        graduationTarget: graduationTarget,// 畢業總學分目標 (全域設定)
+        categoryTargets: categoryTargets,// 各領域/必選修學分目標 (全域設定)
+        periodConfig: periodConfig,// 課堂時間設定 (上課時長、起始時間)
+        paymentMethods: paymentMethods,// 將支付方式列表加入存檔物件中
+        userTitle: userTitle,
+        // 加入伺服器時間戳記 (這只對 Firestore 有效，存入 LocalStorage 前會被移除)
+        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
     };
 
     const dbKey = 'campusMate_v5.9.0_' + currentUser.uid;
@@ -180,6 +183,14 @@ function refreshUI() {
     if (typeof renderNotes === 'function') renderNotes();// 筆記列表
     if (typeof renderAnniversaries === 'function') renderAnniversaries();// 紀念日列表
     if (typeof renderSemesterSettings === 'function') renderSemesterSettings();// 學期日期設定介面
+
+    // 更新頂部導航列的名稱
+    const nameDisplay = document.getElementById('user-name-display');
+    if (nameDisplay) nameDisplay.innerText = userTitle;
+
+    // 更新設定頁面的目前狀態
+    const settingName = document.getElementById('setting-user-title');
+    if (settingName) settingName.innerText = userTitle;
 
 }
 

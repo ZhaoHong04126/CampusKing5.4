@@ -406,3 +406,30 @@ function renderWeeklyTable() {
     });
     tbody.innerHTML = html;
 }
+
+// 切換課表檢視模式 (本日課程 / 週課表)
+function switchScheduleMode(mode) {
+    // 定義所有分頁 ID
+    const tabs = ['daily', 'weekly'];
+
+    // 隱藏所有內容並移除按鈕 active 樣式
+    tabs.forEach(tab => {
+        const view = document.getElementById(`subview-sch-${tab}`);
+        const btn = document.getElementById(`btn-sch-${tab}`);
+        
+        if (view) view.style.display = 'none';
+        if (btn) btn.classList.remove('active');
+    });
+
+    // 顯示目標內容並加上 active 樣式
+    const targetView = document.getElementById(`subview-sch-${mode}`);
+    const targetBtn = document.getElementById(`btn-sch-${mode}`);
+    
+    if (targetView) targetView.style.display = 'block';
+    if (targetBtn) targetBtn.classList.add('active');
+
+    // 如果切換到週課表，確保表格有重新渲染 (避免畫面空白)
+    if (mode === 'weekly') {
+        renderWeeklyTable();
+    }
+}

@@ -41,12 +41,10 @@
 		<h1 id="app-title">📅 校園王</h1>
 		<div id="user-info" style="display: none;">
 			<div class="user-details" style="text-align: right; margin-right: 10px;">
-				<span id="user-badge"
-					style="color: white; background: rgba(0,0,0,0.2); padding: 2px 8px; border-radius: 4px;">訪客</span>
-				<span class="status-text" style="color: #a8e6cf; display: block; font-size: 0.75rem;">● Online</span>
+				<div id="user-name-display" style="color: white; font-weight: bold; font-size: 0.95rem; margin-bottom: 2px;">同學</div>
+				<span id="user-badge" style="color: white; background: rgba(0,0,0,0.2); padding: 2px 8px; border-radius: 4px; font-size: 0.75rem;">訪客</span>
 			</div>
-			<img id="user-photo" src="" alt="User"
-				style="width: 36px; height: 36px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.8);">
+			<img id="user-photo" src="" alt="User" style="width: 36px; height: 36px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.8);">
 		</div>
 	</nav>
 	<!-- 登入後的頁面 -->
@@ -160,53 +158,64 @@
 			</div>
 			<!-- 課表頁面 -->
 			<div id="view-schedule" style="display: none;">
-				<div class="card">
-					<div class="week-tabs">
-						<button class="tab-btn" onclick="switchDay(1)" id="tab-1">一</button>
-						<button class="tab-btn" onclick="switchDay(2)" id="tab-2">二</button>
-						<button class="tab-btn" onclick="switchDay(3)" id="tab-3">三</button>
-						<button class="tab-btn" onclick="switchDay(4)" id="tab-4">四</button>
-						<button class="tab-btn" onclick="switchDay(5)" id="tab-5">五</button>
-						<button class="tab-btn" onclick="switchDay(6)" id="tab-6">六</button>
-						<button class="tab-btn" onclick="switchDay(0)" id="tab-0">日</button>
-					</div>
-					<h2 id="schedule-title">本日課程</h2>
-					<table id="schedule-table">
-						<thead>
-							<tr>
-								<th width="15%">節次</th>
-								<th width="20%">時間</th>
-								<th width="25%">科目</th>
-								<th width="20%">地點</th>
-								<th width="20%">老師</th>
-							</tr>
-						</thead>
-						<tbody id="schedule-body"></tbody>
-					</table>
-					<button class="btn btn-add" onclick="openEditModal()">+ 編輯本日課程</button>
+				<div class="week-tabs" style="margin-bottom: 20px;">
+					<button class="tab-btn active" onclick="switchScheduleMode('daily')" id="btn-sch-daily">📅 本日課程</button>
+					<button class="tab-btn" onclick="switchScheduleMode('weekly')" id="btn-sch-weekly">🗓️ 週課表</button>
 				</div>
-				<div class="card">
-					<h2>📅 週課表
-						<button class="btn-icon" onclick="exportSchedule()"
-							style="font-size: 0.9rem; background: transparent; border: 1px solid #ddd;">📷 存成圖片</button>
-					</h2>
-					<div style="overflow-x: auto;">
-						<table class="weekly-table">
+
+				<div id="subview-sch-daily" style="display: block;">
+					<div class="card">
+						<div class="week-tabs">
+							<button class="tab-btn" onclick="switchDay(1)" id="tab-1">一</button>
+							<button class="tab-btn" onclick="switchDay(2)" id="tab-2">二</button>
+							<button class="tab-btn" onclick="switchDay(3)" id="tab-3">三</button>
+							<button class="tab-btn" onclick="switchDay(4)" id="tab-4">四</button>
+							<button class="tab-btn" onclick="switchDay(5)" id="tab-5">五</button>
+							<button class="tab-btn" onclick="switchDay(6)" id="tab-6">六</button>
+							<button class="tab-btn" onclick="switchDay(0)" id="tab-0">日</button>
+						</div>
+						
+						<h2 id="schedule-title">本日課程</h2>
+						<table id="schedule-table">
 							<thead>
 								<tr>
-									<th style="width: 40px; background: #f8f9fa;">節</th>
-									<th style="min-width: 60px;">一</th>
-									<th style="min-width: 60px;">二</th>
-									<th style="min-width: 60px;">三</th>
-									<th style="min-width: 60px;">四</th>
-									<th style="min-width: 60px;">五</th>
-									<th style="min-width: 60px; color:#e74c3c;">六</th>
-									<th style="min-width: 60px; color:#e74c3c;">日</th>
+									<th width="15%">節次</th>
+									<th width="20%">時間</th>
+									<th width="25%">科目</th>
+									<th width="20%">地點</th>
+									<th width="20%">老師</th>
 								</tr>
 							</thead>
-							<tbody id="weekly-schedule-body">
-							</tbody>
+							<tbody id="schedule-body"></tbody>
 						</table>
+						<button class="btn btn-add" onclick="openEditModal()">+ 編輯本日課程</button>
+					</div>
+				</div>
+
+				<div id="subview-sch-weekly" style="display: none;">
+					<div class="card">
+						<h2>📅 週課表
+							<button class="btn-icon" onclick="exportSchedule()"
+								style="font-size: 0.9rem; background: transparent; border: 1px solid #ddd;">📷 存成圖片</button>
+						</h2>
+						<div style="overflow-x: auto;">
+							<table class="weekly-table">
+								<thead>
+									<tr>
+										<th style="width: 40px; background: #f8f9fa;">節</th>
+										<th style="min-width: 60px;">一</th>
+										<th style="min-width: 60px;">二</th>
+										<th style="min-width: 60px;">三</th>
+										<th style="min-width: 60px;">四</th>
+										<th style="min-width: 60px;">五</th>
+										<th style="min-width: 60px; color:#e74c3c;">六</th>
+										<th style="min-width: 60px; color:#e74c3c;">日</th>
+									</tr>
+								</thead>
+								<tbody id="weekly-schedule-body">
+								</tbody>
+							</table>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -614,6 +623,10 @@
 					</div>
 					<hr style="border:0; border-top:1px solid var(--border); margin:25px 0;">
 					<div style="text-align: center;">
+						<p></p>
+						<a href="https://forms.gle/455SvDGUERWmhU5e7">回饋表單</a>
+					</div>
+					<div style="text-align: center;">
 						<p style="font-size:0.85rem; color: var(--text-sub);">
 							Designed & Produced by<br>
 							<strong>Huang Zhaohong</strong>
@@ -684,6 +697,10 @@
 				<div class="card">
 					<h2>⚙️ 一般設定</h2>
 					<div class="settings-list">
+						<div class="settings-item" onclick="editUserTitle()">
+							<div><span class="settings-icon">🏷️</span>顯示名稱 / 稱號</div>
+							<span id="setting-user-title" class="settings-arrow">同學</span>
+						</div>
 						<div class="settings-item" onclick="editTimeSettings()">
 							<div><span class="settings-icon">⏰</span>設定課堂時長 (上課/下課)</div>
 							<span class="settings-arrow">➤</span>
@@ -1157,3 +1174,4 @@
 </body>
 
 </html>
+

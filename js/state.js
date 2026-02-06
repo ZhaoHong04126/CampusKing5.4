@@ -12,7 +12,7 @@ let currentSemester = "114-2";// 目前選擇的學期
 
 let semesterList = ["114-2"];// 學期列表
 
-
+let userTitle = "同學"; // 預設顯示名稱
 let allData = {};// 儲存所有學期的完整資料結構
 let weeklySchedule = {};// 當前學期的週課表資料
 let gradeList = [];// 當前學期的成績資料

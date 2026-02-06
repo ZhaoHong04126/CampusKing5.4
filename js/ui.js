@@ -199,9 +199,11 @@ function switchTab(tabName, addToHistory = true) {
 
     // --- 針對特定頁面執行初始化邏輯 ---
     
-    // 如果切換到課表頁，預設顯示今天的課表
+    // 如果切換到課表頁，預設顯示今天的課表，並切換回「本日課程」分頁
     if (tabName === 'schedule') {
         switchDay(currentDay);
+        // 新增這一行，確保預設顯示第一個分頁
+        if (typeof switchScheduleMode === 'function') switchScheduleMode('daily');
     }
     // 如果切換到行事曆，渲染月曆
     if (tabName === 'calendar') {
@@ -588,4 +590,17 @@ function saveCreditSettings() {
     if (typeof renderAnalysis === 'function') renderAnalysis(); // 若有圖表則更新
     showAlert("學分標準設定已儲存！", "成功");
     toggleCreditEdit(); // 關閉編輯模式
+}
+
+// 修改顯示名稱的功能
+function editUserTitle() {
+    showPrompt("請輸入要在 APP 中顯示的名稱或稱號", userTitle, "設定顯示名稱")
+    .then(newName => {
+        if (newName && newName.trim() !== "") {
+            userTitle = newName.trim();
+            saveData(); // 存檔
+            refreshUI(); // 刷新畫面
+            showAlert("名稱已更新！");
+        }
+    });
 }
