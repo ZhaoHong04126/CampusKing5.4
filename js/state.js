@@ -27,6 +27,11 @@ let semesterStartDate = "";// 學期開始日
 let semesterEndDate = "";// 學期結束日
 let learningList = [];// 學習計畫資料
 let graduationTarget = 128; // 畢業學分目標 (預設 128)
+// 預設的支付方式列表
+let paymentMethods = [
+    "現金", "一卡通", "悠遊卡", 
+    "信用卡", "行動支付", "轉帳"
+];
 
 // 各類別學分目標預設值 (大學模式)
 let categoryTargets = {

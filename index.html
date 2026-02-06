@@ -409,6 +409,7 @@
 					<button class="tab-btn" onclick="switchAccTab('details')" id="btn-acc-details">📝 明細</button>
 					<button class="tab-btn" onclick="switchAccTab('chart')" id="btn-acc-chart">📈 月報表</button>
 					<button class="tab-btn" onclick="switchAccTab('daily')" id="btn-acc-daily">📅 日統計</button>
+					<button class="tab-btn" onclick="switchAccTab('accounts')" id="btn-acc-accounts">💳 帳戶</button>
 				</div>
 
 				<div id="view-acc-summary" style="display: block;">
@@ -435,17 +436,17 @@
 							style="font-size: 1.1rem; padding: 15px;">+ 記一筆</button>
 					</div>
 				</div>
-
 				<div id="view-acc-details" style="display: none;">
 					<div class="card">
 						<h2>📝 收支明細列表</h2>
 						<table id="accounting-table">
 							<thead>
 								<tr>
-									<th width="25%">日期</th>
-									<th width="35%">項目</th>
-									<th width="25%">金額</th>
-									<th width="15%">刪除</th>
+									<th width="20%">日期</th>
+									<th width="20%">項目</th>
+									<th width="20%">支付方式</th>
+									<th width="20%">金額</th>
+									<th width="20%">更改/刪除</th>
 								</tr>
 							</thead>
 							<tbody id="accounting-list-body"></tbody>
@@ -453,7 +454,6 @@
 						<button class="btn btn-add" onclick="openAccountingModal()">+ 新增紀錄</button>
 					</div>
 				</div>
-
 				<div id="view-acc-chart" style="display: none;">
 					<div class="card" style="height: 70vh; display: flex; flex-direction: column;">
 						<h2>📈 每月收支趨勢</h2>
@@ -465,7 +465,6 @@
 						</p>
 					</div>
 				</div>
-
 				<div id="view-acc-daily" style="display: none;">
 					<div class="card">
 						<h2>📅 每日總收支統計</h2>
@@ -480,6 +479,14 @@
 							</thead>
 							<tbody id="daily-acc-body"></tbody>
 						</table>
+					</div>
+				</div>
+				<div id="view-acc-accounts" style="display: none;">
+					<div class="card">
+						<h2>💳 帳戶餘額概況</h2>
+						<div id="acc-accounts-list">
+							</div>
+						<button class="btn btn-add" onclick="addPaymentMethod()">+ 新增支付方式</button>
 					</div>
 				</div>
 			</div>
@@ -513,13 +520,11 @@
 			<div id="view-info" style="display: none;">
 				<div class="card">
 					<h2>🚀 校園王 App 功能總覽</h2>
-
 					<div
 						style="background: #fff3e0; color: #e67e22; padding: 12px; border-radius: 8px; margin: 15px 0; font-size: 0.9rem; border-left: 4px solid #e67e22;">
 						<strong>💡 v5.4 全新架構：</strong><br>
 						本系統採用「類手機桌面」設計，所有功能皆獨立為 App，點擊圖示即可開啟。
 					</div>
-
 					<div style="margin-bottom: 20px;">
 						<h4
 							style="color: var(--primary); border-bottom: 1px dashed #ddd; padding-bottom: 5px; margin-bottom: 10px;">
@@ -555,7 +560,6 @@
 							<li><strong>活動清單：</strong>依時間排序顯示本學期所有重要日程。</li>
 						</ul>
 					</div>
-
 					<div style="margin-bottom: 20px;">
 						<h4
 							style="color: var(--primary); border-bottom: 1px dashed #ddd; padding-bottom: 5px; margin-bottom: 10px;">
@@ -578,7 +582,6 @@
 							<li><strong>詳細模組：</strong>(大學部) 支援通識、核心、專業等學分分類統計。</li>
 						</ul>
 					</div>
-
 					<div style="margin-bottom: 20px;">
 						<h4
 							style="color: var(--primary); border-bottom: 1px dashed #ddd; padding-bottom: 5px; margin-bottom: 10px;">
@@ -595,7 +598,6 @@
 							</li>
 						</ul>
 					</div>
-
 					<div style="margin-bottom: 20px;">
 						<h4
 							style="color: var(--primary); border-bottom: 1px dashed #ddd; padding-bottom: 5px; margin-bottom: 10px;">
@@ -606,7 +608,6 @@
 							<li><strong>💝 紀念日：</strong>紀錄重要日子 (如生日、交往紀念)，自動計算「還有幾天」或「已過去幾天」。</li>
 						</ul>
 					</div>
-
 					<div style="margin-bottom: 0;">
 						<h4
 							style="color: var(--primary); border-bottom: 1px dashed #ddd; padding-bottom: 5px; margin-bottom: 10px;">
@@ -620,9 +621,7 @@
 							<li><strong>深色模式：</strong>支援一鍵切換 Dark Mode 風格。</li>
 						</ul>
 					</div>
-
 					<hr style="border:0; border-top:1px solid var(--border); margin:25px 0;">
-
 					<div style="text-align: center;">
 						<p style="font-size:0.85rem; color: var(--text-sub);">
 							Designed & Produced by<br>
@@ -1037,7 +1036,12 @@
 				<input type="number" id="input-acc-amount" placeholder="例如：100">
 			</div>
 
-			<button class="btn" style="width: 100%; background: #333;" onclick="addTransaction()">+ 確定新增</button>
+			<div class="input-group">
+				<label>支付方式</label>
+				<select id="input-acc-method" class="login-input" style="background:white;">
+				</select>
+			</div>
+			<button id="btn-save-acc" class="btn" style="width: 100%; background: #333;" onclick="addTransaction()">+ 確定新增</button>
 			<button class="btn"
 				style="width: 100%; margin-top: 10px; background: transparent; color: #666; border: 1px solid #ddd;"
 				onclick="closeAccountingModal()">關閉</button>

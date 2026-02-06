@@ -230,39 +230,6 @@ function switchTab(tabName, addToHistory = true) {
     }
 }
 
-// --- 管理員與公告功能 ---
-
-// 檢查是否為管理員，若是則顯示管理面板
-function checkAdminStatus() {
-    const adminPanel = document.getElementById('admin-panel');
-    if (!adminPanel) return;
-    // ADMIN_UID 定義在 firebase.js，比對目前登入者的 UID
-    if (currentUser && currentUser.uid === ADMIN_UID) adminPanel.style.display = 'block';
-    else adminPanel.style.display = 'none';
-}
-
-// 發布公告 (管理員功能)
-function addAdminInfo() {
-    const newInfoText = document.getElementById('admin-new-info').value;
-    // 驗證輸入
-    if (!newInfoText) return showAlert("請輸入內容");
-    
-    // 寫入 Firebase Firestore 的 "announcements" 集合
-    db.collection("announcements").add({
-        content: newInfoText,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(), // 伺服器時間戳記
-        author: currentUser.uid
-    })
-    .then(() => {
-        showAlert("公告已發布至雲端！", "成功");
-        document.getElementById('admin-new-info').value = ""; // 清空輸入框
-        loadAnnouncements(); // 重新載入列表
-    })
-    .catch((error) => {
-        showAlert("發布失敗：" + error.message, "錯誤");
-    });
-}
-
 // 載入公告列表
 function loadAnnouncements() {
     const infoContent = document.getElementById('info-content');

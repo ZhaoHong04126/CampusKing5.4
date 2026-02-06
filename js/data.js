@@ -37,13 +37,16 @@ function parseAndApplyData(parsed) {
     semesterList = parsed.semesterList || ["114-2"]; // 讀取學期列表
     currentSemester = parsed.currentSemester || semesterList[0]; // 設定當前學期
     graduationTarget = parsed.graduationTarget || 128; // 畢業學分目標
+    // 讀取儲存的支付方式
+    if (parsed.paymentMethods) {
+        paymentMethods = parsed.paymentMethods;
+    }
     if (parsed.periodConfig) {
         periodConfig = parsed.periodConfig; // 課堂時間設定
     }
     if (parsed.categoryTargets) {
         categoryTargets = parsed.categoryTargets; // 學分分類目標
     }
-
     // 載入當前學期的詳細資料到全域變數 (weeklySchedule 等)
     loadSemesterData(currentSemester);
 }
@@ -122,7 +125,7 @@ function saveData() {
     graduationTarget: graduationTarget,// 畢業總學分目標 (全域設定)
     categoryTargets: categoryTargets,// 各領域/必選修學分目標 (全域設定)
     periodConfig: periodConfig,// 課堂時間設定 (上課時長、起始時間)
-    
+    paymentMethods: paymentMethods,// 將支付方式列表加入存檔物件中
     // 加入伺服器時間戳記 (這只對 Firestore 有效，存入 LocalStorage 前會被移除)
     lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
     };
