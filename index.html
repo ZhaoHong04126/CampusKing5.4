@@ -1015,20 +1015,20 @@
 
 			<div class="input-group">
 				<label>類型</label>
-				<select id="input-acc-type" class="login-input" style="background:white;">
-					<option value="expense">🔴 支出 (Expense)</option>
-					<option value="income">🟢 收入 (Income)</option>
-				</select>
+				<select id="input-acc-type" class="login-input" style="background:white;" onchange="toggleAccType()">
+					<option value="expense">💸 支出</option>
+					<option value="income">💰 收入</option>
+					<option value="transfer">🔁 轉帳</option> </select>
 			</div>
 
 			<div class="input-group">
 				<label>日期</label>
-				<input type="date" id="input-acc-date" class="login-input">
+				<input type="date" id="input-acc-date">
 			</div>
 
 			<div class="input-group">
-				<label>項目名稱</label>
-				<input type="text" id="input-acc-title" placeholder="例如：午餐、打工薪水...">
+				<label>項目說明</label>
+				<input type="text" id="input-acc-title" placeholder="例如：早餐、薪水">
 			</div>
 
 			<div class="input-group">
@@ -1037,9 +1037,15 @@
 			</div>
 
 			<div class="input-group">
-				<label>支付方式</label>
+				<label id="label-acc-method">支付方式</label>
 				<select id="input-acc-method" class="login-input" style="background:white;">
-				</select>
+					</select>
+			</div>
+
+			<div class="input-group" id="group-acc-to-method" style="display: none;">
+				<label>轉入帳戶 (存入)</label>
+				<select id="input-acc-to-method" class="login-input" style="background:white;">
+					</select>
 			</div>
 			<button id="btn-save-acc" class="btn" style="width: 100%; background: #333;" onclick="addTransaction()">+ 確定新增</button>
 			<button class="btn"

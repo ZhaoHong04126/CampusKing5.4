@@ -17,13 +17,11 @@ function renderAccounting() {
     
     // 遍歷每一筆記帳資料來計算總收支
     accountingList.forEach(item => {
-        // 將金額轉為整數，若無效則設為 0
-        const amount = parseInt(item.amount) || 0;
-        // 如果類型是收入，則加到總收入
-        if (item.type === 'income') totalIncome += amount;
-        // 否則（是支出），加到總支出
-        else totalExpense += amount;
-    });
+    const amount = parseInt(item.amount);
+    if (item.type === 'income') totalIncome += amount;
+    else if (item.type === 'expense') totalExpense += amount;
+    // 總資產不變
+});
 
     const summaryIncome = document.getElementById('acc-summary-income');// 取得顯示總收入的 DOM 元素
     const summaryExpense = document.getElementById('acc-summary-expense');// 取得顯示總支出的 DOM 元素
@@ -69,38 +67,44 @@ function switchAccTab(tabName) {
 
 // 渲染收支明細列表
 function renderAccDetails() {
-    const listBody = document.getElementById('accounting-list-body');// 取得列表的 tbody 元素
-    if (!listBody) return;// 若找不到元素則結束
-    listBody.innerHTML = '';// 清空目前的列表內容
+    const listBody = document.getElementById('accounting-list-body');
+    if (!listBody) return;
+    listBody.innerHTML = '';
 
-    // 如果沒有任何記帳資料
     if (accountingList.length === 0) {
-        // 顯示無資料的提示訊息
         listBody.innerHTML = '<tr><td colspan="5" class="no-class">💰 目前無收支紀錄</td></tr>';
         return;
     }
-        // 遍歷資料列表逐一產生 HTML
+
     accountingList.forEach((item, index) => {
         const amount = parseInt(item.amount) || 0;
-        const typeLabel = item.type === 'income' 
-            ? '<span class="badge-income">收入</span>' 
-            : '<span class="badge-expense">支出</span>';
-        const amountColor = item.type === 'income' ? 'color: #2ecc71;' : 'color: #e74c3c;';
-        const sign = item.type === 'income' ? '+' : '-';
-        const method = item.method || '現金';
+        let typeLabel = '';
+        let amountColor = '';
+        let sign = '';
+        let methodHtml = '';
+
+        // ✨ 判斷顯示樣式
+        if (item.type === 'transfer') {
+            typeLabel = '<span style="background:#3498db; color:white; padding:2px 6px; border-radius:4px; font-size:0.75rem;">轉帳</span>';
+            amountColor = 'color: #3498db;'; // 藍色
+            sign = ''; // 不加正負號
+            // 顯示 A -> B
+            methodHtml = `
+                <span style="font-size:0.85rem; color:#555;">
+                    ${item.method} ➝ ${item.to_method}
+                </span>`;
+        } else {
+            typeLabel = item.type === 'income' ? '<span class="badge-income">收入</span>' : '<span class="badge-expense">支出</span>';
+            amountColor = item.type === 'income' ? 'color: #2ecc71;' : 'color: #e74c3c;';
+            sign = item.type === 'income' ? '+' : '-';
+            methodHtml = `<span style="background-color: #f3e5f5; color: #8e24aa; padding: 2px 8px; border-radius: 4px; font-size: 0.85rem;">${item.method || '現金'}</span>`;
+        }
 
         listBody.innerHTML += `
             <tr>
                 <td>${item.date}</td>
-                <td style="text-align: left;">
-                    ${typeLabel} ${item.title}
-                </td>
-                <td>
-                    <span style="background-color: #f3e5f5; color: #8e24aa; padding: 2px 8px; border-radius: 4px; font-size: 0.85rem;">
-                        ${method}
-                    </span>
-                </td>
-                <td style="font-weight:bold; ${amountColor}">${sign}$${amount}</td>
+                <td style="text-align: left;">${typeLabel} ${item.title}</td>
+                <td>${methodHtml}</td> <td style="font-weight:bold; ${amountColor}">${sign}$${amount}</td>
                 <td>
                     <button class="btn-edit" onclick="editTransaction(${index})" style="padding:4px 8px; margin-right:5px;">✏️</button>
                     <button class="btn-delete" onclick="deleteTransaction(${index})" style="padding:4px 8px;">🗑️</button>
@@ -254,8 +258,9 @@ function openAccountingModal() {
     
     // 更新下拉選單
     if (typeof updatePaymentMethodOptions === 'function') updatePaymentMethodOptions();
-    
-    // ✨ 重置編輯狀態 (變回新增模式)
+    // 確保重置時執行一次 UI 切換 (預設回到支出模式)
+    toggleAccType();
+    // 重置編輯狀態 (變回新增模式)
     editingAccountingIndex = -1;
     const btn = document.getElementById('btn-save-acc');
     if (btn) {
@@ -283,13 +288,26 @@ function addTransaction() {
         return;
     }
 
+    // 轉帳邏輯檢查
+    if (type === 'transfer') {
+        if (method === toMethod) {
+            showAlert("轉出與轉入帳戶不能相同！");
+            return;
+        }
+        if (!title) title = "轉帳"; // 預設標題
+    } else if (!title) {
+        showAlert("請輸入項目說明");
+        return;
+    }
+
     // 建立新資料物件
     const newItem = {
         date: date,
         title: title,
         amount: parseInt(amount), // 轉為整數
         type: type,
-        method: method
+        method: method,
+        to_method: type === 'transfer' ? toMethod : null // 只有轉帳才存這個
     };
 
     if (editingAccountingIndex > -1) {
@@ -299,7 +317,7 @@ function addTransaction() {
     } else {
         // --- 新增模式：加入新資料 ---
         accountingList.push(newItem);
-        showAlert("記帳成功！", "完成");
+        showAlert(type === 'transfer' ? "轉帳成功！" : "記帳成功！", "完成");
     }
     saveData();// 儲存至本地與雲端
     closeAccountingModal();// 關閉視窗
@@ -325,28 +343,35 @@ function renderAccAccounts() {
     if (!listDiv) return;
 
     let html = '';
-    
-    // 計算每個帳戶的餘額 (只計算本學期)
-    // 邏輯：遍歷記帳列表，依照 method 分類加減
     const balances = {};
-    paymentMethods.forEach(method => balances[method] = 0); // 初始化
+    paymentMethods.forEach(method => balances[method] = 0);
 
     accountingList.forEach(item => {
-        const method = item.method || '現金'; // 舊資料預設為現金
+        const method = item.method || '現金';
         const amount = parseInt(item.amount) || 0;
         
-        // 如果這個支付方式已經被刪除了，我們還是統計它，或者歸類為"其他"
+        // 確保 key 存在
         if (balances[method] === undefined) balances[method] = 0;
-
-        if (item.type === 'income') balances[method] += amount;
-        else balances[method] -= amount;
+        
+        if (item.type === 'income') {
+            balances[method] += amount;
+        } else if (item.type === 'expense') {
+            balances[method] -= amount;
+        } else if (item.type === 'transfer') {
+            // 轉帳邏輯：轉出扣款，轉入加款
+            balances[method] -= amount; 
+            
+            const toMethod = item.to_method;
+            if (toMethod) {
+                if (balances[toMethod] === undefined) balances[toMethod] = 0;
+                balances[toMethod] += amount;
+            }
+        }
     });
 
-    // 產生 HTML
     paymentMethods.forEach((method, index) => {
         const bal = balances[method];
         const color = bal >= 0 ? '#2ecc71' : '#e74c3c';
-        
         html += `
         <div style="display:flex; justify-content:space-between; align-items:center; padding: 15px 0; border-bottom: 1px solid #eee;">
             <div>
@@ -359,16 +384,17 @@ function renderAccAccounts() {
             </div>
         </div>`;
     });
-
     listDiv.innerHTML = html;
 }
 
 // 更新下拉選單 (給新增記帳視窗用)
 function updatePaymentMethodOptions() {
     const select = document.getElementById('input-acc-method');
+    const selectTo = document.getElementById('input-acc-to-method');
     if (!select) return;
     
     const currentVal = select.value; // 記住目前選的值
+    const currentValTo = selectTo ? selectTo.value : '';
 
     let optionsHtml = '';
     paymentMethods.forEach(method => {
@@ -376,11 +402,11 @@ function updatePaymentMethodOptions() {
     });
     
     select.innerHTML = optionsHtml;
+    if (selectTo) selectTo.innerHTML = optionsHtml; // 同步填入轉入選單
 
-    // 如果原本選的值還在列表內，就選回去；否則選第一個
-    if (paymentMethods.includes(currentVal)) {
-        select.value = currentVal;
-    }
+    // 恢復選取狀態
+    if (paymentMethods.includes(currentVal)) select.value = currentVal;
+    if (selectTo && paymentMethods.includes(currentValTo)) selectTo.value = currentValTo;
 }
 
 // 新增支付方式
@@ -454,6 +480,9 @@ function editTransaction(index) {
             document.getElementById('input-acc-title').value = item.title;
             document.getElementById('input-acc-amount').value = item.amount;
             document.getElementById('input-acc-type').value = item.type;
+            if (item.type === 'transfer') {
+                document.getElementById('input-acc-to-method').value = item.to_method;
+            }
             document.getElementById('input-acc-method').value = item.method || '現金';
 
             // 設定為編輯模式
@@ -465,6 +494,26 @@ function editTransaction(index) {
                 btn.innerText = "💾 保存修改";
                 btn.style.background = "#f39c12"; // 橘色代表修改
             }
+
+            // 呼叫切換函式來顯示/隱藏欄位
+            toggleAccType();
         }
     });
+}
+
+// 切換類型時的 UI 變化
+function toggleAccType() {
+    const type = document.getElementById('input-acc-type').value;
+    const toGroup = document.getElementById('group-acc-to-method');
+    const methodLabel = document.getElementById('label-acc-method');
+    
+    if (type === 'transfer') {
+        toGroup.style.display = 'block'; // 顯示轉入帳戶
+        if (methodLabel) methodLabel.innerText = "轉出帳戶 (扣款)";
+        document.getElementById('input-acc-title').placeholder = "例如：提款、儲值 (選填)";
+    } else {
+        toGroup.style.display = 'none'; // 隱藏轉入帳戶
+        if (methodLabel) methodLabel.innerText = "支付方式";
+        document.getElementById('input-acc-title').placeholder = "例如：早餐、薪水";
+    }
 }
