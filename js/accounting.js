@@ -274,17 +274,34 @@ function closeAccountingModal() {
     document.getElementById('accounting-modal').style.display = 'none';// 隱藏 Modal
 }
 
-// 新增一筆交易
+// 記帳/轉帳儲存函式 (含防呆機制)
 function addTransaction() {
-    const date = document.getElementById('input-acc-date').value;// 取得使用者輸入的日期
-    const title = document.getElementById('input-acc-title').value;// 取得標題
-    const amount = document.getElementById('input-acc-amount').value;// 取得金額
-    const type = document.getElementById('input-acc-type').value;// 取得類型
-    const method = document.getElementById('input-acc-method').value;// 取得支付方式
+    // 嘗試抓取 HTML 元素
+    const dateEl = document.getElementById('input-acc-date');
+    const titleEl = document.getElementById('input-acc-title');
+    const amountEl = document.getElementById('input-acc-amount');
+    const typeEl = document.getElementById('input-acc-type');
+    const methodEl = document.getElementById('input-acc-method');
+    const toMethodEl = document.getElementById('input-acc-to-method'); // 這是新加入的欄位
 
-    // 檢查資料是否完整
-    if (!date || !title || !amount) {
-        showAlert("請輸入完整資料", "資料不全");
+    // 2. 基本檢查：如果連日期或金額欄位都找不到，代表 HTML 可能壞了
+    if (!dateEl || !amountEl) {
+        showAlert("系統錯誤：找不到輸入欄位，請檢查 HTML");
+        return;
+    }
+
+    // 讀取數值 (加入安全檢查，避免讀取 null 的 value 導致當機)
+    const date = dateEl.value;
+    let title = titleEl.value;
+    const amount = amountEl.value;
+    const type = typeEl ? typeEl.value : 'expense';
+    const method = methodEl ? methodEl.value : '現金';
+    // 如果找不到轉入欄位，就預設為空字串，防止當機
+    const toMethod = toMethodEl ? toMethodEl.value : ''; 
+
+    // 資料驗證
+    if (!date || !amount) {
+        showAlert("請輸入日期與金額", "資料不全");
         return;
     }
 
@@ -294,34 +311,34 @@ function addTransaction() {
             showAlert("轉出與轉入帳戶不能相同！");
             return;
         }
-        if (!title) title = "轉帳"; // 預設標題
+        if (!title) title = "轉帳"; 
     } else if (!title) {
         showAlert("請輸入項目說明");
         return;
     }
 
-    // 建立新資料物件
+    // 建立資料物件
     const newItem = {
         date: date,
         title: title,
-        amount: parseInt(amount), // 轉為整數
+        amount: parseInt(amount),
         type: type,
         method: method,
-        to_method: type === 'transfer' ? toMethod : null // 只有轉帳才存這個
+        to_method: type === 'transfer' ? toMethod : null
     };
 
-    if (editingAccountingIndex > -1) {
-        // --- 編輯模式：更新舊資料 ---
+    // 儲存 (判斷是新增還是修改)
+    if (typeof editingAccountingIndex !== 'undefined' && editingAccountingIndex > -1) {
         accountingList[editingAccountingIndex] = newItem;
         showAlert("修改成功！", "完成");
     } else {
-        // --- 新增模式：加入新資料 ---
         accountingList.push(newItem);
         showAlert(type === 'transfer' ? "轉帳成功！" : "記帳成功！", "完成");
     }
-    saveData();// 儲存至本地與雲端
-    closeAccountingModal();// 關閉視窗
-    renderAccounting();// 重新渲染畫面
+
+    saveData();
+    closeAccountingModal();
+    renderAccounting();
 }
 
 // 刪除交易紀錄
@@ -516,4 +533,5 @@ function toggleAccType() {
         if (methodLabel) methodLabel.innerText = "支付方式";
         document.getElementById('input-acc-title').placeholder = "例如：早餐、薪水";
     }
+
 }
