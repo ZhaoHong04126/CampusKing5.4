@@ -8,9 +8,9 @@ let isRegisterMode = false
 let currentDay = new Date().getDay();
 if (currentDay === 0 || currentDay === 6) currentDay = 1;
 
-let currentSemester = "114-2";// 目前選擇的學期
+let currentSemester = "114-1";// 目前選擇的學期
 
-let semesterList = ["114-2"];// 學期列表
+let semesterList = ["114-1"];// 學期列表
 
 let userTitle = "同學"; // 預設顯示名稱
 let allData = {};// 儲存所有學期的完整資料結構
