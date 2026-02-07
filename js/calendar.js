@@ -1,97 +1,99 @@
-// --- 行事曆功能 ---
+// js/calendar.js
 
-// 用來記錄目前月曆顯示的日期 (年/月)，預設為當前時間
+// 用來記錄目前月曆顯示的日期 (年/月)
 let calCurrentDate = new Date();
 
-// 主要渲染函式 (同時渲染下方的活動列表 與 上方的月曆網格)
+// 主要渲染函式
 function renderCalendar() {
-    renderCalendarList();// 渲染下方的活動列表
-    renderMonthGrid();// 渲染上方的月曆網格
+    renderCalendarList();
+    renderMonthGrid();
 }
 
-// 列表渲染邏輯
+// ---------------------------------------------------------
+// 1. 列表渲染 (顯示日期區間)
+// ---------------------------------------------------------
 function renderCalendarList() {
-    // 取得列表容器元素
     const listDiv = document.getElementById('calendar-list');
     if (!listDiv) return;
 
-    // 依日期排序活動 (舊 -> 新)
-    calendarEvents.sort((a, b) => new Date(a.date) - new Date(b.date));
+    // 排序：依起始日期 -> 起始時間
+    calendarEvents.sort((a, b) => {
+        const dateA = new Date(a.date + (a.startTime ? 'T' + a.startTime : 'T00:00'));
+        const dateB = new Date(b.date + (b.startTime ? 'T' + b.startTime : 'T00:00'));
+        return dateA - dateB;
+    });
 
     let html = '';
-    // 如果沒有活動
     if (calendarEvents.length === 0) {
         html = '<p style="color:#999; text-align:center;">😴 目前無活動</p>';
     } else {
-        // 遍歷所有活動
         calendarEvents.forEach((event, index) => {
-            const checkDate = event.endDate ? event.endDate : event.date;// 判斷過期：如果有結束日，以結束日為準；否則以起始日為準
-            const isPast = new Date(event.date) < new Date().setHours(0,0,0,0);// 判斷該活動是否已過期 (日期小於今天)
-            const style = isPast ? 'opacity: 0.5;' : '';// 過期的活動顯示半透明
+            // 判斷過期：如果 "結束日" (若無則用起始日) 小於今天，就變淡
+            const endDateCheck = event.endDate ? new Date(event.endDate) : new Date(event.date);
+            const isPast = endDateCheck < new Date().setHours(0,0,0,0);
+            const style = isPast ? 'opacity: 0.5;' : '';
             
-            // 顯示日期字串：如果有結束日且不同天，顯示範圍
+            // 處理時間顯示標籤
+            let timeBadge = '';
+            if (!event.isAllDay && event.startTime) {
+                timeBadge = `<span style="background:#e3f2fd; color:#1565c0; padding:2px 6px; border-radius:4px; font-size:0.8rem; margin-right:6px;">${event.startTime}${event.endTime ? '~'+event.endTime : ''}</span>`;
+            } else {
+                timeBadge = `<span style="background:#eee; color:#666; padding:2px 6px; border-radius:4px; font-size:0.8rem; margin-right:6px;">全天</span>`;
+            }
+
+            // 處理日期顯示 (如果是跨日，顯示 02/08 ~ 02/10)
             let dateDisplay = event.date;
             if (event.endDate && event.endDate !== event.date) {
-                // 格式變成 "2026-02-07 ~ 02-10" (省略結束日的年份以節省空間)
-                dateDisplay += ` ~ ${event.endDate.substring(5)}`;
+                // 簡化顯示，只取月/日
+                const s = event.date.split('-').slice(1).join('/');
+                const e = event.endDate.split('-').slice(1).join('/');
+                dateDisplay = `${s} ~ ${e}`;
             }
-            // 組合 HTML
+
             html += `
             <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; padding:10px 0; ${style}">
                 <div style="text-align:left;">
-                    <div style="font-weight:bold; color:var(--primary); font-size:0.9rem;">${dateDisplay}</div>
-                    <div style="font-size:1rem;">${event.title}</div>
+                    <div style="font-weight:bold; color:var(--primary); font-size:0.9rem; margin-bottom:2px;">
+                        ${dateDisplay}
+                    </div>
+                    <div style="font-size:1rem; display:flex; align-items:center; flex-wrap:wrap;">
+                        ${timeBadge}
+                        <span>${event.title}</span>
+                    </div>
                 </div>
                 <button class="btn-delete" onclick="deleteCalendarEvent(${index})" style="padding:4px 8px;">🗑️</button>
             </div>`;
         });
     }
-    // 寫入 HTML
     listDiv.innerHTML = html;
 }
 
-// 月曆格子渲染邏輯
+// ---------------------------------------------------------
+// 2. 月曆網格渲染 (核心：處理跨日顯示)
+// ---------------------------------------------------------
 function renderMonthGrid() {
-    const gridDiv = document.getElementById('calendar-grid');// 取得網格容器
-    const titleDiv = document.getElementById('calendar-month-year');// 取得標題容器 (顯示年月)
+    const gridDiv = document.getElementById('calendar-grid');
+    const titleDiv = document.getElementById('calendar-month-year');
     if (!gridDiv || !titleDiv) return;
 
-    // 取得目前的年份與月份
     const year = calCurrentDate.getFullYear();
-    const month = calCurrentDate.getMonth(); // 注意：0-11 代表 1-12 月
+    const month = calCurrentDate.getMonth(); 
 
-    // 1. 先計算「第幾週」文字 (防止變數未定義錯誤)
+    // 標題顯示週次 (維持不變)
     let weekInfoText = "";
-    
-    // 檢查全域變數 semesterStartDate (開學日) 是否存在且有效
     if (typeof semesterStartDate !== 'undefined' && semesterStartDate) {
         const start = new Date(semesterStartDate);
-        const currentMonthEnd = new Date(year, month + 1, 0);// 本月最後一天
-
-        // 簡單判斷：如果這個月在學期開學日之後
+        const currentMonthEnd = new Date(year, month + 1, 0);
         if (currentMonthEnd >= start) {
-            // 本月第一天
             const currentMonthStart = new Date(year, month, 1);
-            // 計算時間差
             const diffTime = currentMonthStart - start;
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            // 計算是第幾週
-            let startWeek = Math.ceil(diffDays / 7);
-            
-            // 修正顯示：如果是負的(開學前)，或剛好第1週，最小顯示為 1
-            if (startWeek < 1) startWeek = 1; 
-            
-            // 只有在合理範圍內才顯示 (避免寒暑假顯示奇怪的週次)
-            if (startWeek > -10 && startWeek < 30) {
-                weekInfoText = `<span style="font-size:0.8rem; color:var(--primary); margin-left:10px;">(約 第${startWeek}週起)</span>`;
-            }
+            const startWeek = Math.max(1, Math.ceil(Math.ceil(diffTime / (86400000)) / 7));
+            if (startWeek < 30) weekInfoText = `<span style="font-size:0.8rem; color:var(--primary); margin-left:10px;">(約 第${startWeek}週起)</span>`;
         }
     }
-
-    // 2. 更新標題文字 (年月 + 週次資訊)
     titleDiv.innerHTML = `${year}年 ${month + 1}月 ${weekInfoText}`;
 
-    // 3. 準備月曆格子的 HTML 標頭 (星期幾)
+    // 建立星期標頭
     let html = `
         <div class="cal-day-header" style="color:#e74c3c">日</div>
         <div class="cal-day-header">一</div>
@@ -102,117 +104,143 @@ function renderMonthGrid() {
         <div class="cal-day-header" style="color:#e74c3c">六</div>
     `;
 
-    const firstDay = new Date(year, month, 1).getDay();// 計算當月第一天是星期幾 (0=週日, 1=週一...)
-    const daysInMonth = new Date(year, month + 1, 0).getDate();// 計算當月總共有幾天 (下個月的第0天 = 本月最後一天)
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-    // 4. 補前面的空白格子 (上個月的日期位置)
+    // 補空白格
     for (let i = 0; i < firstDay; i++) {
         html += `<div class="cal-day cal-other-month"></div>`;
     }
 
-    // 5. 填入當月日期
     const today = new Date();
-    const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;// 判斷是否為「現在這個月」(用於標示今天)
+    const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
 
-    // 準備活動日期的 Set 以便快速查詢 (將所有活動日期轉為字串集合)
-    // const eventDates = new Set();
-    // calendarEvents.forEach(e => eventDates.add(e.date));
-
-    // 迴圈產生 1 ~ 最後一天的格子
+    // --- 遍歷每一天 ---
     for (let d = 1; d <= daysInMonth; d++) {
-        const isToday = isCurrentMonth && today.getDate() === d;// 判斷是否為今天
-        const className = isToday ? 'cal-day cal-today' : 'cal-day';// 設定 CSS 類別
+        const isToday = isCurrentMonth && today.getDate() === d;
+        const className = isToday ? 'cal-day cal-today' : 'cal-day';
         
-        // 補零格式化成 YYYY-MM-DD (例如 2026-01-05)
+        // 建構當天的日期字串 YYYY-MM-DD
         const mStr = (month + 1).toString().padStart(2, '0');
         const dStr = d.toString().padStart(2, '0');
-        const dateStr = `${year}-${mStr}-${dStr}`;
+        const currentDateStr = `${year}-${mStr}-${dStr}`;
 
-        // 篩選出這一天是否在任何活動的「區間」內
+        // 篩選：如果這一天落在 "起始日 ~ 結束日" 之間，就要顯示
         const dayEvents = calendarEvents.filter(e => {
-            if (e.endDate) {
-                // 如果有結束日，檢查 dateStr 是否在 [date, endDate] 之間
-                return dateStr >= e.date && dateStr <= e.endDate;
-            }
-            // 單日活動
-            return e.date === dateStr;
+            const start = e.date; 
+            const end = e.endDate || e.date; // 如果沒有結束日，就當作單日活動
+            return currentDateStr >= start && currentDateStr <= end;
         });
-        // 產生活動標籤 HTML
+
+        // 排序：讓全天活動排上面
+        dayEvents.sort((a, b) => (b.isAllDay ? 1 : 0) - (a.isAllDay ? 1 : 0));
+
+        // 產生當天的小標籤
         let eventsHtml = '';
         dayEvents.forEach(e => {
-            eventsHtml += `<div class="cal-event-text">${e.title}</div>`;
+            // 如果是跨日活動，且今天不是第一天，就不顯示時間，只顯示名稱簡寫
+            let prefix = '';
+            
+            // 只有 "非全天" 且 "今天是起始日" 才顯示時間
+            if (!e.isAllDay && e.startTime && e.date === currentDateStr) {
+                prefix = `<span style="font-size:0.7em; opacity:0.8;">${e.startTime.replace(':','')}</span> `;
+            }
+            
+            // 跨日活動樣式微調 (如果是連續活動的中間幾天，標題可以淡一點或加箭頭)
+            let style = "";
+            if (e.date !== currentDateStr && e.endDate && e.endDate !== currentDateStr) {
+                // 中間的天數
+                style = "opacity: 0.7;"; 
+            }
+            
+            eventsHtml += `<div class="cal-event-text" style="${style}">${prefix}${e.title}</div>`;
         });
-        // 調整結構讓日期數字獨立
+
         html += `<div class="${className}">
                     <div class="cal-date-num">${d}</div>
                     <div class="cal-events-wrapper">${eventsHtml}</div>
                  </div>`;
     }
-    gridDiv.innerHTML = html;// 寫入 HTML
+    gridDiv.innerHTML = html;
 }
 
-// 切換月份函式
+// ---------------------------------------------------------
+// 3. 互動與資料處理
+// ---------------------------------------------------------
+
 function changeMonth(offset) {
-    // 調整目前檢視的月份 (+1 或 -1)
     calCurrentDate.setMonth(calCurrentDate.getMonth() + offset);
-    renderMonthGrid();// 重新渲染月曆
+    renderMonthGrid();
 }
 
-// 開啟新增活動 Modal
 function openCalendarModal() {
     document.getElementById('calendar-modal').style.display = 'flex';
-    document.getElementById('input-cal-date-start').value = ''; // 清空起始日
-    document.getElementById('input-cal-date-end').value = '';   // 清空結束日
+    document.getElementById('input-cal-date').value = '';
+    document.getElementById('input-cal-end-date').value = ''; // 重置結束日
     document.getElementById('input-cal-title').value = '';
+    
+    // 重置時間
+    document.getElementById('input-cal-allday').checked = true;
+    document.getElementById('input-cal-start').value = '';
+    document.getElementById('input-cal-end').value = '';
+    toggleCalTimeInput();
 }
 
-// 關閉新增活動 Modal
 function closeCalendarModal() {
     document.getElementById('calendar-modal').style.display = 'none';
 }
 
-// 新增活動邏輯
-function addCalendarEvent() {
-    const start = document.getElementById('input-cal-date-start').value;
-    const end = document.getElementById('input-cal-date-end').value;
-    const title = document.getElementById('input-cal-title').value;
-
-    if (!start || !title) {
-        if(window.showAlert) showAlert("請輸入「起始日」與「名稱」");
-        else alert("請輸入起始日與名稱");
-        return;
-    }
-
-    // 驗證日期邏輯
-    if (end && end < start) {
-        if(window.showAlert) showAlert("結束日期不能早於起始日期！");
-        else alert("結束日期不能早於起始日期！");
-        return;
-    }
-
-    // 儲存資料：增加 endDate 欄位 (若無則為 null 或空字串)
-    calendarEvents.push({ 
-        date: start, 
-        endDate: end || "", // 存入結束日
-        title: title 
-    });
-
-    saveData();
-    closeCalendarModal();
-    renderCalendar();
-    if(window.showAlert) showAlert("活動已新增！", "成功");
+function toggleCalTimeInput() {
+    const isAllDay = document.getElementById('input-cal-allday').checked;
+    const timeDiv = document.getElementById('cal-time-inputs');
+    timeDiv.style.display = isAllDay ? 'none' : 'flex';
 }
 
-// 刪除活動邏輯
+function addCalendarEvent() {
+    const date = document.getElementById('input-cal-date').value;
+    const endDate = document.getElementById('input-cal-end-date').value; // 取得結束日
+    const title = document.getElementById('input-cal-title').value;
+    const isAllDay = document.getElementById('input-cal-allday').checked;
+    const startTime = document.getElementById('input-cal-start').value;
+    const endTime = document.getElementById('input-cal-end').value;
+
+    if (date && title) {
+        // 驗證：如果填了結束日，不能早於起始日
+        if (endDate && endDate < date) {
+            showAlert("結束日期不能早於起始日期！");
+            return;
+        }
+        // 驗證：非全天需填時間
+        if (!isAllDay && !startTime) {
+            showAlert("請輸入開始時間");
+            return;
+        }
+
+        calendarEvents.push({ 
+            date, 
+            endDate: endDate || null, // 存入結束日 (若無則 null)
+            title,
+            isAllDay,
+            startTime: isAllDay ? null : startTime,
+            endTime: isAllDay ? null : endTime
+        });
+
+        saveData();
+        closeCalendarModal();
+        renderCalendar(); 
+        showAlert("活動已新增！", "成功");
+    } else {
+        showAlert("請至少輸入起始日期與名稱");
+    }
+}
+
 function deleteCalendarEvent(index) {
-    // 執行刪除的內部函式
     const doDelete = () => {
         calendarEvents.splice(index, 1);
         saveData();
         renderCalendar();
     };
 
-    // 支援自訂 Confirm 或原生 confirm
     if(window.showConfirm) {
         showConfirm("確定刪除此活動？").then(ok => { if(ok) doDelete(); });
     } else {

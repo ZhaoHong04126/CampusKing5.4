@@ -980,27 +980,46 @@
 	<div id="calendar-modal" class="modal">
 		<div class="modal-content" style="text-align: left;">
 			<h3 style="text-align: center; margin-top:0;">📅 新增活動</h3>
+			
 			<div class="input-group">
 				<label>日期區間</label>
-				<div style="display: flex; gap: 10px;">
-					<div style="flex: 1;">
-						<span style="font-size: 0.8rem; color: #666; display:block; margin-bottom:2px;">起始日</span>
-						<input type="date" id="input-cal-date-start" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px; background: #fff;">
+				<div style="display:flex; gap:10px;">
+					<div style="flex:1;">
+						<label style="font-size:0.8rem; color:#888; margin-bottom:2px;">起始日</label>
+						<input type="date" id="input-cal-date" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px; margin-bottom:0;">
 					</div>
-					<div style="flex: 1;">
-						<span style="font-size: 0.8rem; color: #666; display:block; margin-bottom:2px;">結束日 (選填)</span>
-						<input type="date" id="input-cal-date-end" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px; background: #fff;">
+					<div style="flex:1;">
+						<label style="font-size:0.8rem; color:#888; margin-bottom:2px;">結束日 (選填)</label>
+						<input type="date" id="input-cal-end-date" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px; margin-bottom:0;">
 					</div>
 				</div>
 			</div>
+
+			<div class="input-group" style="margin-top: 15px;">
+				<label style="display:flex; align-items:center; cursor:pointer; margin-bottom: 8px;">
+					<input type="checkbox" id="input-cal-allday" checked onchange="toggleCalTimeInput()" style="width:auto; margin-right:8px; transform: scale(1.2);">
+					全天活動
+				</label>
+				
+				<div id="cal-time-inputs" style="display: none; gap: 10px;">
+					<div style="flex:1;">
+						<label style="font-size:0.8rem; margin-bottom:2px;">開始時間</label>
+						<input type="time" id="input-cal-start" class="login-input" style="background:white; margin-bottom:0;">
+					</div>
+					<div style="flex:1;">
+						<label style="font-size:0.8rem; margin-bottom:2px;">結束時間</label>
+						<input type="time" id="input-cal-end" class="login-input" style="background:white; margin-bottom:0;">
+					</div>
+				</div>
+			</div>
+
 			<div class="input-group">
 				<label>活動名稱</label>
-				<input type="text" id="input-cal-title" placeholder="例如：校慶、期末考週...">
+				<input type="text" id="input-cal-title" placeholder="例如：期末考週、畢業旅行...">
 			</div>
+			
 			<button class="btn" style="width: 100%; background: #333;" onclick="addCalendarEvent()">+ 加入</button>
-			<button class="btn"
-				style="width: 100%; margin-top: 10px; background: transparent; color: #666; border: 1px solid #ddd;"
-				onclick="closeCalendarModal()">關閉</button>
+			<button class="btn" style="width: 100%; margin-top: 10px; background: transparent; color: #666; border: 1px solid #ddd;" onclick="closeCalendarModal()">關閉</button>
 		</div>
 	</div>
 	<div id="regular-exam-modal" class="modal">
