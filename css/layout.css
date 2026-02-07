@@ -148,8 +148,8 @@
 #view-home {
     padding-top: 20px;
     min-height: 80vh;
-    /* 這裡可以加一張背景圖，讓它更像手機桌面 */
-    /* background-image: url('your-wallpaper.jpg'); background-size: cover; */
+    /* background-image: url('image.png');
+    background-size: cover; */
 }
 
 .app-grid {
@@ -225,5 +225,4 @@
 #nav-back-btn:active {
     transform: scale(0.8); /* 按下時縮小效果 */
     opacity: 0.8;
-
 }

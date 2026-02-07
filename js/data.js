@@ -107,6 +107,7 @@ function saveData() {
     // 將目前操作中的變數 (如 weeklySchedule) 寫回 allData 結構中
     allData[currentSemester] = { 
         schedule: weeklySchedule,// 目前的週課表資料
+        lottery: lotteryList,// 儲存籤筒資料
         grades: gradeList,// 目前的學期成績單資料
         regularExams: regularExams,// 目前的平常考成績
         midtermExams: midtermExams,// 目前的段考成績
@@ -183,6 +184,7 @@ function refreshUI() {
     if (typeof renderNotes === 'function') renderNotes();// 筆記列表
     if (typeof renderAnniversaries === 'function') renderAnniversaries();// 紀念日列表
     if (typeof renderSemesterSettings === 'function') renderSemesterSettings();// 學期日期設定介面
+    if (typeof renderLottery === 'function') renderLottery();// 重新渲染籤筒
 
     // 更新頂部導航列的名稱
     const nameDisplay = document.getElementById('user-name-display');
@@ -192,6 +194,7 @@ function refreshUI() {
     const settingName = document.getElementById('setting-user-title');
     if (settingName) settingName.innerText = userTitle;
 
+    
 }
 
 // 載入指定學期的資料到全域變數
@@ -200,6 +203,8 @@ function loadSemesterData(sem) {
     if (!allData[sem]) allData[sem] = {
         // 使用 JSON 序列化再反序列化，來進行「深拷貝」，確保新學期擁有獨立的課表結構，而不受預設值連動影響
         schedule: JSON.parse(JSON.stringify(defaultSchedule)),
+        // 籤筒資料 (如果是新學期，給予預設值)
+        lottery: JSON.parse(JSON.stringify(defaultLotteryData)),
         grades: [],// 空的成績陣列
         regularExams: {},// 空的平常考物件
         midtermExams: {},// 空的段考物件
@@ -208,6 +213,7 @@ function loadSemesterData(sem) {
         notes: [],// 空的筆記陣列
         startDate: "",// 學期開始日為空字串
         endDate: "",// 學期結束日為空字串
+
     };
 
     // --- 將資料庫中的資料指派給全域操作變數 (State)，方便其他 js 存取與修改 ---
@@ -226,6 +232,8 @@ function loadSemesterData(sem) {
     
     // 載入學習計畫，若無資料則給予空陣列 []
     learningList = allData[sem].learning || [];
+
+    lotteryList = allData[sem].lottery || JSON.parse(JSON.stringify(defaultLotteryData));
 }
 
 // 更新學分分類目標 (設定頁功能)

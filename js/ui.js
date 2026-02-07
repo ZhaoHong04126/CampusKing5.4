@@ -137,7 +137,7 @@ function switchTab(tabName, addToHistory = true) {
         'credits', 'regular', 'midterm', 
         'grades', 'exams-hub', 'grade-manager', 
         'accounting', 'notes', 'anniversary', 
-        'learning', 'discussion'
+        'learning', 'discussion', 'lottery'
     ];
     
     // 迴圈：隱藏所有 View，並移除導航列按鈕的 active 樣式
@@ -227,8 +227,12 @@ function switchTab(tabName, addToHistory = true) {
     if (tabName === 'discussion') {
         if (typeof initDiscussion === 'function') initDiscussion();
     } else {
-        // 如果離開討論區，就停止監聽 (節省流量)
+        // 如果離開討論區，就停止監聽
         if (typeof stopDiscussionListener === 'function') stopDiscussionListener();
+    }
+    // 如果切換到籤筒，初始化介面
+    if (tabName === 'lottery') {
+        if (typeof renderLottery === 'function') renderLottery();
     }
 }
 
