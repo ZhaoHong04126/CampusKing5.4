@@ -350,23 +350,69 @@
 }
 
 .cal-day {
-    height: 40px;
+    min-height: 80px; /* 拉高格子高度以便放文字 */
+    height: auto;     /* 讓它隨內容長高 */
     display: flex;
     flex-direction: column;
-    justify-content: center;
-    align-items: center;
+    justify-content: flex-start; /* 內容靠上對齊 */
+    align-items: stretch;        /* 內容寬度填滿 */
     border-radius: 8px;
     cursor: default;
     font-size: 1rem;
     position: relative;
+    padding: 4px;      /* 增加內距 */
+    background: #fff;  /* 確保背景色 */
+    border: 1px solid transparent; /* 預留邊框空間 */
 }
 
-/* 今天的日期 */
+/* 今天的日期樣式微調 */
 .cal-today {
-    background-color: var(--primary);
-    color: white;
+    background-color: #fff; /* 背景改回白色，以免文字看不清 */
+    border: 2px solid var(--primary); /* 改用邊框標示今天 */
+    color: var(--text-main);
+    box-shadow: none; /* 移除原本陰影，改用邊框 */
+}
+
+/* 日期數字樣式 */
+.cal-date-num {
+    text-align: center;
+    font-size: 0.9rem;
     font-weight: bold;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    margin-bottom: 4px;
+    width: 24px;       /* 固定寬度 */
+    height: 24px;      /* 固定高度 */
+    line-height: 24px;
+    align-self: center; /* 數字置中 */
+    border-radius: 50%;
+}
+
+/* 如果是今天，數字背景變色 */
+.cal-today .cal-date-num {
+    background: var(--primary);
+    color: white;
+}
+
+/* [新增] 活動文字標籤樣式 */
+.cal-event-text {
+    font-size: 0.75rem;       /* 字體縮小 */
+    background-color: #e3f2fd;/* 淺藍色背景 */
+    color: #1565c0;           /* 深藍色文字 */
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-bottom: 3px;       /* 標籤間距 */
+    white-space: nowrap;      /* 不換行 */
+    overflow: hidden;         /* 超出隱藏 */
+    text-overflow: ellipsis;  /* 超出顯示... */
+    text-align: left;         /* 文字靠左 */
+}
+
+/* 深色模式適配 (選用) */
+[data-theme="dark"] .cal-day {
+    background: var(--card);
+}
+[data-theme="dark"] .cal-event-text {
+    background-color: #3a506b;
+    color: #8ecae6;
 }
 
 /* 非本月的日期 (變淡) */

@@ -108,8 +108,8 @@ function renderMonthGrid() {
     const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;// 判斷是否為「現在這個月」(用於標示今天)
 
     // 準備活動日期的 Set 以便快速查詢 (將所有活動日期轉為字串集合)
-    const eventDates = new Set();
-    calendarEvents.forEach(e => eventDates.add(e.date));
+    // const eventDates = new Set();
+    // calendarEvents.forEach(e => eventDates.add(e.date));
 
     // 迴圈產生 1 ~ 最後一天的格子
     for (let d = 1; d <= daysInMonth; d++) {
@@ -120,14 +120,19 @@ function renderMonthGrid() {
         const mStr = (month + 1).toString().padStart(2, '0');
         const dStr = d.toString().padStart(2, '0');
         const dateStr = `${year}-${mStr}-${dStr}`;
-        
-        const hasEvent = eventDates.has(dateStr);// 檢查這一天是否有活動
-        const dotHtml = hasEvent ? '<div class="cal-dot"></div>' : '';// 如果有活動，加入紅點 HTML
 
-        // 組合格子 HTML
+        // 篩選出這一天的所有活動
+        const dayEvents = calendarEvents.filter(e => e.date === dateStr);
+        // [新增] 產生活動標籤 HTML
+        let eventsHtml = '';
+        dayEvents.forEach(e => {
+            // title 直接顯示，cal-event-text 樣式稍後定義
+            eventsHtml += `<div class="cal-event-text">${e.title}</div>`;
+        });
+        // 調整結構讓日期數字獨立
         html += `<div class="${className}">
-                    <span>${d}</span>
-                    ${dotHtml}
+                    <div class="cal-date-num">${d}</div>
+                    <div class="cal-events-wrapper">${eventsHtml}</div>
                  </div>`;
     }
     gridDiv.innerHTML = html;// 寫入 HTML
