@@ -25,14 +25,21 @@ function renderCalendarList() {
     } else {
         // 遍歷所有活動
         calendarEvents.forEach((event, index) => {
+            const checkDate = event.endDate ? event.endDate : event.date;// 判斷過期：如果有結束日，以結束日為準；否則以起始日為準
             const isPast = new Date(event.date) < new Date().setHours(0,0,0,0);// 判斷該活動是否已過期 (日期小於今天)
             const style = isPast ? 'opacity: 0.5;' : '';// 過期的活動顯示半透明
             
+            // 顯示日期字串：如果有結束日且不同天，顯示範圍
+            let dateDisplay = event.date;
+            if (event.endDate && event.endDate !== event.date) {
+                // 格式變成 "2026-02-07 ~ 02-10" (省略結束日的年份以節省空間)
+                dateDisplay += ` ~ ${event.endDate.substring(5)}`;
+            }
             // 組合 HTML
             html += `
             <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; padding:10px 0; ${style}">
                 <div style="text-align:left;">
-                    <div style="font-weight:bold; color:var(--primary); font-size:0.9rem;">${event.date}</div>
+                    <div style="font-weight:bold; color:var(--primary); font-size:0.9rem;">${dateDisplay}</div>
                     <div style="font-size:1rem;">${event.title}</div>
                 </div>
                 <button class="btn-delete" onclick="deleteCalendarEvent(${index})" style="padding:4px 8px;">🗑️</button>
@@ -121,12 +128,18 @@ function renderMonthGrid() {
         const dStr = d.toString().padStart(2, '0');
         const dateStr = `${year}-${mStr}-${dStr}`;
 
-        // 篩選出這一天的所有活動
-        const dayEvents = calendarEvents.filter(e => e.date === dateStr);
-        // [新增] 產生活動標籤 HTML
+        // 篩選出這一天是否在任何活動的「區間」內
+        const dayEvents = calendarEvents.filter(e => {
+            if (e.endDate) {
+                // 如果有結束日，檢查 dateStr 是否在 [date, endDate] 之間
+                return dateStr >= e.date && dateStr <= e.endDate;
+            }
+            // 單日活動
+            return e.date === dateStr;
+        });
+        // 產生活動標籤 HTML
         let eventsHtml = '';
         dayEvents.forEach(e => {
-            // title 直接顯示，cal-event-text 樣式稍後定義
             eventsHtml += `<div class="cal-event-text">${e.title}</div>`;
         });
         // 調整結構讓日期數字獨立
@@ -148,7 +161,8 @@ function changeMonth(offset) {
 // 開啟新增活動 Modal
 function openCalendarModal() {
     document.getElementById('calendar-modal').style.display = 'flex';
-    document.getElementById('input-cal-date').value = '';
+    document.getElementById('input-cal-date-start').value = ''; // 清空起始日
+    document.getElementById('input-cal-date-end').value = '';   // 清空結束日
     document.getElementById('input-cal-title').value = '';
 }
 
@@ -159,21 +173,34 @@ function closeCalendarModal() {
 
 // 新增活動邏輯
 function addCalendarEvent() {
-    // 取得輸入資料
-    const date = document.getElementById('input-cal-date').value;
+    const start = document.getElementById('input-cal-date-start').value;
+    const end = document.getElementById('input-cal-date-end').value;
     const title = document.getElementById('input-cal-title').value;
 
-    // 驗證
-    if (date && title) {
-        calendarEvents.push({ date, title });// 加入陣列
-        saveData();// 存檔
-        closeCalendarModal();// 關閉 Modal
-        renderCalendar(); // 重新渲染
-    } else {
-        // 錯誤提示
-        if(window.showAlert) showAlert("請輸入日期與名稱");
-        else alert("請輸入日期與名稱");
+    if (!start || !title) {
+        if(window.showAlert) showAlert("請輸入「起始日」與「名稱」");
+        else alert("請輸入起始日與名稱");
+        return;
     }
+
+    // 驗證日期邏輯
+    if (end && end < start) {
+        if(window.showAlert) showAlert("結束日期不能早於起始日期！");
+        else alert("結束日期不能早於起始日期！");
+        return;
+    }
+
+    // 儲存資料：增加 endDate 欄位 (若無則為 null 或空字串)
+    calendarEvents.push({ 
+        date: start, 
+        endDate: end || "", // 存入結束日
+        title: title 
+    });
+
+    saveData();
+    closeCalendarModal();
+    renderCalendar();
+    if(window.showAlert) showAlert("活動已新增！", "成功");
 }
 
 // 刪除活動邏輯

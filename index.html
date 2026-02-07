@@ -961,9 +961,17 @@
 		<div class="modal-content" style="text-align: left;">
 			<h3 style="text-align: center; margin-top:0;">📅 新增活動</h3>
 			<div class="input-group">
-				<label>日期</label>
-				<input type="date" id="input-cal-date"
-					style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px;">
+				<label>日期區間</label>
+				<div style="display: flex; gap: 10px;">
+					<div style="flex: 1;">
+						<span style="font-size: 0.8rem; color: #666; display:block; margin-bottom:2px;">起始日</span>
+						<input type="date" id="input-cal-date-start" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px; background: #fff;">
+					</div>
+					<div style="flex: 1;">
+						<span style="font-size: 0.8rem; color: #666; display:block; margin-bottom:2px;">結束日 (選填)</span>
+						<input type="date" id="input-cal-date-end" style="width:100%; padding:8px; border:1px solid #ddd; border-radius:6px; background: #fff;">
+					</div>
+				</div>
 			</div>
 			<div class="input-group">
 				<label>活動名稱</label>
