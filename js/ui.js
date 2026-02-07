@@ -137,7 +137,8 @@ function switchTab(tabName, addToHistory = true) {
         'credits', 'regular', 'midterm', 
         'grades', 'exams-hub', 'grade-manager', 
         'accounting', 'notes', 'anniversary', 
-        'learning', 'discussion', 'lottery'
+        'learning', 'discussion', 'lottery',
+        'notifications',
     ];
     
     // 迴圈：隱藏所有 View，並移除導航列按鈕的 active 樣式
@@ -233,6 +234,10 @@ function switchTab(tabName, addToHistory = true) {
     // 如果切換到籤筒，初始化介面
     if (tabName === 'lottery') {
         if (typeof renderLottery === 'function') renderLottery();
+    }
+    // 如果切換到通知頁，渲染設定列表
+    if (tabName === 'notifications') {
+        if (typeof renderNotificationApp === 'function') renderNotificationApp();
     }
 }
 
@@ -607,4 +612,53 @@ function editUserTitle() {
             showAlert("名稱已更新！");
         }
     });
+}
+
+// --- 通知中心 APP 邏輯 ---
+
+// 渲染通知設定介面
+window.renderNotificationApp = function() {
+    const list = document.getElementById('notification-settings-list');
+    if (!list) return;
+
+    // 輔助函式：產生開關 HTML
+    const createToggle = (key, title, desc, icon) => {
+        const isOn = notificationSettings[key];
+        const statusColor = isOn ? 'var(--primary)' : '#ccc';
+        const statusText = isOn ? 'ON' : 'OFF';
+        
+        return `
+        <div class="settings-item" onclick="toggleNotificationSetting('${key}')" style="padding: 20px 10px;">
+            <div style="display:flex; align-items:center;">
+                <span style="font-size:1.5rem; margin-right:15px; background:#f0f0f0; width:45px; height:45px; display:flex; align-items:center; justify-content:center; border-radius:12px;">${icon}</span>
+                <div>
+                    <div style="font-weight:bold; font-size:1rem; margin-bottom:4px;">${title}</div>
+                    <div style="font-size:0.85rem; color:#888;">${desc}</div>
+                </div>
+            </div>
+            <div style="font-size:1.2rem; font-weight:bold; color: ${statusColor};">
+                ${statusText}
+            </div>
+        </div>`;
+    };
+
+    list.innerHTML = 
+        createToggle('course', '課前提醒', '上課前 10 分鐘自動發送通知', '📚') +
+        createToggle('daily', '每日晨報', '每天 07:00 摘要今日行程', '☀️') +
+        createToggle('anniversary', '紀念日提醒', '重要日子當天早上發送提醒', '💝');
+}
+
+// 切換設定
+window.toggleNotificationSetting = function(key) {
+    // 切換狀態
+    notificationSettings[key] = !notificationSettings[key];
+    // 存檔
+    saveData();
+    // 重新渲染以更新畫面 (ON/OFF)
+    renderNotificationApp();
+    
+    // 給予簡單的回饋
+    const status = notificationSettings[key] ? "已開啟" : "已關閉";
+    // 如果有 showAlert 可以用，不然用 console
+    if(window.showAlert) showAlert(`${status}通知`, "設定更新");
 }

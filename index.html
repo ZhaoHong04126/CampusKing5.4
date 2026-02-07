@@ -152,6 +152,12 @@
 						</div>
 						<div class="app-label">討論區</div>
 					</div>
+					<div class="app-item" onclick="switchTab('notifications')">
+						<div class="app-icon" style="background: linear-gradient(135deg, #FF512F 0%, #DD2476 100%);">
+							🔔
+						</div>
+						<div class="app-label">通知中心</div>
+					</div>
 					<div class="app-item" onclick="switchTab('settings')">
 						<div class="app-icon"
 							style="background: linear-gradient(135deg, #505285 0%, #585e92 12%, #65689f 25%, #7474b0 37%, #7e7ebb 50%, #8389c7 62%, #9795d4 75%, #a2a1dc 87%, #b5aee4 100%);">
@@ -302,8 +308,7 @@
 			<!-- 紀錄成績頁頁面 -->
 			<div id="view-grade-manager" style="display: none;">
 				<div class="week-tabs" style="margin-bottom: 20px;">
-					<button class="tab-btn active" onclick="switchGradeTab('dashboard')" id="tab-grade-dashboard">📊
-						總覽</button>
+					<button class="tab-btn active" onclick="switchGradeTab('dashboard')" id="tab-grade-dashboard">📊 總覽</button>
 					<button class="tab-btn" onclick="switchGradeTab('regular')" id="tab-grade-regular">📝 平常考</button>
 					<button class="tab-btn" onclick="switchGradeTab('midterm')" id="tab-grade-midterm">🏆 段考</button>
 					<button class="tab-btn" onclick="switchGradeTab('list')" id="tab-grade-list">📄 成績單</button>
@@ -698,6 +703,26 @@
 						</div>
 				</div>
 			</div>
+			<!-- 通知設定頁面 -->
+			<div id="view-notifications" style="display: none;">
+				<div class="card">
+					<h2>🔔 通知設定</h2>
+					<div class="settings-list" id="notification-settings-list">
+						</div>
+					
+					<div style="margin-top: 25px; padding: 15px; background: #fff8e1; border-radius: 8px; border-left: 4px solid #ffc107; font-size: 0.9rem; color: #666; line-height: 1.6;">
+						<strong>💡 小提示：</strong>
+						<ul style="margin: 5px 0 0 0; padding-left: 20px;">
+							<li>通知功能需要瀏覽器權限，若收不到請檢查手機設定。</li>
+							<li><strong>晨間快報</strong>會在早上 7:00 左右發送。</li>
+							<li><strong>課前提醒</strong>會在上課前 10 分鐘發送。</li>
+						</ul>
+					</div>
+
+					<button class="btn" onclick="requestNotificationPermission()" style="width: 100%; margin-top: 20px; background: #555;">📢 測試 / 重新請求權限</button>
+					<button class="btn" onclick="switchTab('home')" style="width: 100%; margin-top: 10px; background: transparent; color: #888; border: 1px solid #ddd;">回桌面</button>
+				</div>
+			</div>
 			<!-- 設定頁頁面 -->
 			<div id="view-settings" style="display: none;">
 				<div class="card">
@@ -762,14 +787,9 @@
 							<div><span class="settings-icon">🪪</span>切換身分 (高中/大學)</div>
 							<span class="settings-arrow">➤</span>
 						</div>
-						<div class="settings-item" onclick="requestNotificationPermission()">
-							<div><span class="settings-icon">🔔</span>開啟上課通知</div>
-							<span class="settings-arrow">➤</span>
-						</div>
 						<div class="settings-item" onclick="toggleTheme()">
 							<div><span class="settings-icon">🌙</span>深色模式</div>
-							<span id="theme-status" class="settings-arrow"
-								style="font-size: 0.8rem; font-weight: bold;">OFF</span>
+							<span id="theme-status" class="settings-arrow" style="font-size: 0.8rem; font-weight: bold;">OFF</span>
 						</div>
 					</div>
 				</div>

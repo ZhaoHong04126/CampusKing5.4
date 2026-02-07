@@ -49,7 +49,10 @@ function parseAndApplyData(parsed) {
     if (parsed.categoryTargets) {
         categoryTargets = parsed.categoryTargets; // 學分分類目標
     }
-    // 載入當前學期的詳細資料到全域變數 (weeklySchedule 等)
+    if (parsed.notificationSettings) {
+        notificationSettings = parsed.notificationSettings;// 讀取通知設定
+    }
+    // 載入當前學期的詳細資料到全域變數
     loadSemesterData(currentSemester);
 }
 
@@ -118,6 +121,7 @@ function saveData() {
         startDate: semesterStartDate,// 學期開始日期
         endDate: semesterEndDate,// 學期結束日期
         learning: learningList,// 學習進度計畫
+        notificationSettings: notificationSettings,// 儲存通知設定
     };
 
     // 準備要儲存的完整物件
@@ -185,6 +189,7 @@ function refreshUI() {
     if (typeof renderAnniversaries === 'function') renderAnniversaries();// 紀念日列表
     if (typeof renderSemesterSettings === 'function') renderSemesterSettings();// 學期日期設定介面
     if (typeof renderLottery === 'function') renderLottery();// 重新渲染籤筒
+    if (typeof renderNotificationApp === 'function') renderNotificationApp();// 如果有定義通知
 
     // 更新頂部導航列的名稱
     const nameDisplay = document.getElementById('user-name-display');

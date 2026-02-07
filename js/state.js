@@ -61,5 +61,12 @@ let periodConfig = {
     startHash: "08:10" // 第一節開始時間
 };
 
+// 通知設定預設值
+let notificationSettings = {
+    course: true,       // 課前提醒
+    daily: true,        // 每日晨報 (行程)
+    anniversary: true   // 紀念日提醒
+};
+
 // 預設的課表結構 (週一到週五)
 const defaultSchedule = { 1: [], 2: [], 3: [], 4: [], 5: [] };
