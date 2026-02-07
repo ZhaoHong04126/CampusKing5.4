@@ -3,7 +3,7 @@
 // 用途： 離線體驗、預先快取、動態快取、推播通知等。 
 
 // 定義快取版本名稱，更新版本號可強迫瀏覽器更新快取
-const CACHE_NAME = 'v5.9.5'; 
+const CACHE_NAME = 'v5.9.7'; 
 
 // 定義需要被預先快取的靜態檔案列表
 const ASSETS_TO_CACHE = [
@@ -51,3 +51,4 @@ self.addEventListener('fetch', (e) => {
     );
 
 });
+
