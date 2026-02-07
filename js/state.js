@@ -69,4 +69,16 @@ let notificationSettings = {
 };
 
 // 預設的課表結構 (週一到週五)
+
 const defaultSchedule = { 1: [], 2: [], 3: [], 4: [], 5: [] };
+
+const defaultLotteryData = [
+    {
+        title: "午餐吃什麼",
+        items: ["麥當勞", "學餐", "便利商店", "便當", "不吃"]
+    },
+    {
+        title: "飲料喝什麼",
+        items: ["紅茶", "綠茶", "奶茶", "開水", "咖啡"]
+    }
+];
